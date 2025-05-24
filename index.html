@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Nigga Rikk</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>My Nigga Rikk</h1>
+
+        <div id="start-screen" class="game-screen active">
+            <p>What Up doh!. Tonight, you're the connect. Buy low, sell high, and don't get burned. Can you make a killing before the night's over? You fuck around you gonna find out, you're in the game now.</p>
+            <button id="start-game-btn">Hit the Streets!</button>
+        </div>
+
+        <div id="game-screen" class="game-screen">
+            <div class="stats">
+                <p>Stash: $<span id="cash-display">500</span></p>
+                <p>Inventory: <span id="inventory-display">0</span> items</p>
+                <p>Customers Left: <span id="customers-left-display">10</span></p>
+            </div>
+
+            <!-- Main Interaction Area: Switches between game messages and inventory view -->
+            <div id="main-interaction-area">
+                <div id="game-messages">
+                    <p id="knock-message"></p>
+                    <p id="customer-message"></p>
+                    <p id="action-message"></p>
+                </div>
+
+                <div id="inventory-view" style="display: none;">
+                    <h2>Your Stash</h2>
+                    <div id="inventory-list-content">
+                        <!-- Inventory items will be populated here by script.js -->
+                    </div>
+                    <button id="close-inventory-btn">Close Stash</button>
+                </div>
+            </div>
+
+            <div id="options-container">
+                <!-- Buttons will be dynamically added here by script.js -->
+            </div>
+
+            <button id="check-stash-btn">Check Stash</button>
+            <button id="next-turn-btn" class="hidden">Next Fiend</button>
+        </div>
+
+        <div id="end-screen" class="game-screen">
+            <h2>The Night's Over!</h2>
+            <p>You wrapped up the night with: $<span id="final-cash-display"></span></p>
+            <p id="final-message"></p>
+            <button id="restart-game-btn">Run it Back</button>
+        </div>
+    </div>
+
+    <audio id="knock-sound" src="/door-knocking.mp3"></audio>
+    <!-- You might want to change this sound later for a more thematic one -->
+
+    <script src="script.js"></script>
+</body>
+</html>
