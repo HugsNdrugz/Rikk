@@ -2,61 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Nigga Rikk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Rikk's Doorstep Hustle</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="game-container">
-        <h1>My Nigga Rikk</h1>
-
-        <div id="start-screen" class="game-screen active">
-            <p>What Up doh!. Tonight, you're the connect. Buy low, sell high, and don't get burned. Can you make a killing before the night's over? You fuck around you gonna find out, you're in the game now.</p>
-            <button id="start-game-btn">Hit the Streets!</button>
+    <div id="game-viewport">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active overlay-screen">
+            <div class="screen-content">
+                <h1>Rikk's Hustle</h1>
+                <p>Yo! The city's wild, but Rikk's got the smarts. Answer the door, make the deals, don't get played.</p>
+                <button id="start-game-btn" class="game-button">Start Hustlin'</button>
+            </div>
         </div>
 
-        <div id="game-screen" class="game-screen">
-            <div class="stats">
-                <p>Stash: $<span id="cash-display">500</span></p>
-                <p>Inventory: <span id="inventory-display">0</span> items</p>
-                <p>Customers Left: <span id="customers-left-display">10</span></p>
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div id="top-hud">
+                <span>💰 $<span id="cash-display">0</span></span>
+                <span>🗓️ Day <span id="day-display">1</span></span>
+                <span>🔥 Heat <span id="heat-display">0</span></span>
             </div>
 
-            <!-- Main Interaction Area: Switches between game messages and inventory view -->
-            <div id="main-interaction-area">
-                <div id="game-messages">
-                    <p id="knock-message"></p>
-                    <p id="customer-message"></p>
-                    <p id="action-message"></p>
-                </div>
-
-                <div id="inventory-view" style="display: none;">
-                    <h2>Your Stash</h2>
-                    <div id="inventory-list-content">
-                        <!-- Inventory items will be populated here by script.js -->
-                    </div>
-                    <button id="close-inventory-btn">Close Stash</button>
-                </div>
+            <div id="game-scene">
+                <!-- The background image will be applied here via CSS -->
+                <div id="knock-effect" class="hidden">KNOCK!</div>
+                <!-- You could add an invisible div here to represent the door area for knock-effect positioning if needed -->
+                <!-- e.g., <div id="photo-door-interactive-area"></div> -->
             </div>
 
-            <div id="options-container">
-                <!-- Buttons will be dynamically added here by script.js -->
+            <div id="chat-container">
+                <!-- Chat bubbles will be dynamically added here -->
             </div>
 
-            <button id="check-stash-btn">Check Stash</button>
-            <button id="next-turn-btn" class="hidden">Next Fiend</button>
+            <div id="choices-area">
+                <!-- Action buttons dynamically added here -->
+            </div>
+
+            <div id="player-hub">
+                <button id="open-inventory-btn" class="hub-button">
+                    <img src="backpack-icon.png" alt="🎒" class="button-icon"/>
+                    <span>Stash (<span id="inventory-count-display">0</span>)</span>
+                </button>
+                <button id="next-customer-btn" class="hub-button main-action" disabled>
+                    <img src="next-icon.png" alt="➡️" class="button-icon"/>
+                    <span>Next</span>
+                </button>
+            </div>
         </div>
 
-        <div id="end-screen" class="game-screen">
-            <h2>The Night's Over!</h2>
-            <p>You wrapped up the night with: $<span id="final-cash-display"></span></p>
-            <p id="final-message"></p>
-            <button id="restart-game-btn">Run it Back</button>
+        <!-- End Screen -->
+        <div id="end-screen" class="screen overlay-screen">
+             <div class="screen-content">
+                <h2>Hustle Complete!</h2>
+                <p>Rikk's run ended after <span id="final-days-display"></span> days.</p>
+                <p>Final Cash: $<span id="final-cash-display"></span></p>
+                <p id="final-verdict-text"></p>
+                <button id="restart-game-btn" class="game-button">Go Again</button>
+            </div>
+        </div>
+
+        <!-- Inventory Modal (remains the same) -->
+        <div id="inventory-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal-btn">×</span>
+                <h2>Rikk's Stash</h2>
+                <div id="inventory-list"></div>
+                <p>Capacity: <span id="modal-inventory-slots-display">0/0</span></p>
+            </div>
         </div>
     </div>
 
-    <audio id="knock-sound" src="/door-knocking.mp3"></audio>
-    <!-- You might want to change this sound later for a more thematic one -->
+    <audio id="door-knock-sound" src="door-knock.mp3" preload="auto"></audio>
+    <audio id="cash-sound" src="cash-register.mp3" preload="auto"></audio>
+    <audio id="denied-sound" src="denied.mp3" preload="auto"></audio>
+    <audio id="chat-bubble-sound" src="chat-pop.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>

@@ -1,148 +1,397 @@
+/* === style.css === */
+
+/* Basic Reset & Body */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #2c3e50; /* Dark blue-grey */
-    color: #ecf0f1; /* Light grey */
+    font-family: 'Open Sans', sans-serif; /* Default font */
+    background-color: #1a1a1a; /* Darker background for contrast outside the game viewport */
+    color: #f0f0f0; /* Default light text color */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
+    overflow: hidden; /* Prevent body scrollbars */
 }
 
-#game-container {
-    background-color: #34495e; /* Slightly lighter blue-grey */
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    padding: 30px;
-    width: 90%;
-    max-width: 700px;
+/* Game Viewport - Simulates Mobile Portrait */
+#game-viewport {
+    width: 100%;
+    max-width: #42445A/hom-bg.pngx; /* Typical mobile width, adjust if needed */
+    height: 100vh; /* Full viewport height */
+    max-height: 2400px; /* Max height for larger screens displaying the viewport */
+    background-color: #333; /* Fallback or surrounding color if needed */
+    border-radius: 15px; /* Optional rounded corners for the "device" aesthetic */
+    box-shadow: 0 0 30px rgba(0,0,0,0.6); /* Shadow for the "device" */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Crucial for screen transitions and layout */
+    position: relative; /* For absolute positioning of screens and overlays */
+}
+
+/* Screens (Start, Game, End) */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Hidden by default, JS controls active screen */
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    border: 2px solid #2980b9; /* Blue border */
+    transition: opacity 0.5s ease-in-out; /* Smooth fade for screen transitions */
+}
+.screen.active {
+    display: flex; /* Show the active screen */
 }
 
+/* Overlay Screens (Start & End) */
+.overlay-screen {
+    background-color: rgba(0, 0, 0, 0.85); /* Semi-transparent black overlay */
+    justify-content: center; /* Center content vertically */
+    padding: 20px;
+    z-index: 100; /* Ensure it's on top of the game screen */
+}
+.screen-content { /* For centering content within start/end screens */
+    margin: auto;
+}
 h1 {
-    color: #e74c3c; /* Changed to a red for a more "intense" feel, was orange */
+    font-family: 'Comic Neue', cursive; /* Thematic font */
+    font-size: 2.8em;
+    color: #ffc107; /* Bright yellow/gold */
     margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px #000; /* Simple text shadow for depth */
+}
+h2 {
+    font-family: 'Comic Neue', cursive;
+    font-size: 2em;
+    color: #ff9800; /* Orange accent */
+    margin-bottom: 15px;
+    text-shadow: 1px 1px #000;
+}
+.overlay-screen p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #f0f0f0; /* Ensure text is light on dark overlay */
 }
 
-.game-screen {
-    display: none; /* Hide all screens by default */
+/* Top HUD (Heads-Up Display for stats) */
+#top-hud {
+    width: 100%;
+    background-color: rgba(0,0,0,0.5); /* Semi-transparent dark bar */
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between; /* Space out stats */
+    font-size: 0.9em;
+    color: #fff; /* White text for stats */
+    font-weight: bold;
+    flex-shrink: 0; /* Prevent this bar from shrinking */
+    z-index: 50; /* Above game scene, below overlays */
+    text-shadow: 1px 1px 2px #000; /* Readability for stats */
+}
+#top-hud span {
+    margin: 0 5px; /* Spacing around individual stat items */
 }
 
-.game-screen.active {
-    display: block; /* Show the active screen */
+/* Game Scene (Main visual area with photo background) */
+#game-scene {
+    flex-grow: 1; /* Takes up available vertical space */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* For absolute positioning of elements like knock-effect */
+    overflow: hidden; /* Clip any overflow */
+
+    /* === BACKGROUND IMAGE STYLES === */
+    background-image: url('/hom-bg.png'); /* !!! REPLACE 'home-bg.jpg' with YOUR image file name !!! */
+    background-size: cover; /* Scale image to cover the entire area */
+    background-position: center center; /* Center the image. Adjust (e.g., 'center bottom') if needed */
+    background-repeat: no-repeat; /* Prevent image tiling */
 }
 
-.stats {
-    background-color: #c0392b; /* Darker red, was green */
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-bottom: 20px;
+/* Knock Effect (Text appearing on door knock) */
+#knock-effect {
+    position: absolute;
+    /* === YOU MUST ADJUST 'top' AND 'left' TO POSITION THIS OVER THE DOOR IN YOUR PHOTO === */
+    top: 55%; /* Example: Adjust this percentage from the top */
+    left: 50%; /* Example: Horizontally centered */
+    transform: translate(-50%, -50%); /* Centers the element on its own axis at the (top, left) point */
+    font-family: 'Comic Neue', cursive;
+    font-size: 2.2em; /* Make it prominent */
+    color: white;
+    background-color: rgba(220, 50, 50, 0.85); /* Strong red, semi-transparent */
+    padding: 8px 18px;
+    border-radius: 25px; /* Rounded speech bubble style */
+    text-shadow: 1px 1px 2px #000;
+    animation: knockAnim 0.5s ease-out;
+    z-index: 10; /* Above the background image */
+    pointer-events: none; /* So it doesn't interfere with clicks */
+}
+@keyframes knockAnim {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Chat Container & Bubbles */
+#chat-container {
+    width: 100%;
+    height: 200px; /* Fixed height, adjust as needed or make dynamic */
+    padding: 10px;
+    overflow-y: auto; /* Enable vertical scroll if content exceeds height */
+    display: flex;
+    flex-direction: column-reverse; /* Newest messages appear at bottom and scroll into view */
+    background-color: rgba(0,0,0,0.15); /* Subtle dark background for chat area */
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.chat-bubble {
+    max-width: 80%; /* Max width of a bubble */
+    padding: 10px 15px;
+    border-radius: 18px; /* Rounded bubble corners */
+    margin-bottom: 8px;
+    line-height: 1.45;
+    font-size: 0.95em;
+    box-shadow: 1px 2px 3px rgba(0,0,0,0.25);
+    opacity: 0; /* Start invisible for animation */
+    transform: scale(0.8); /* Start smaller for animation */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Pop-in animation */
+}
+@keyframes popIn {
+    to { opacity: 1; transform: scale(1); }
+}
+
+.chat-bubble.customer {
+    background-color: #e9ecef; /* Light grey for customer */
+    color: #212529; /* Dark text for readability */
+    align-self: flex-start; /* Align to the left */
+    border-bottom-left-radius: 5px; /* "Tail" for customer bubble */
+}
+.chat-bubble.customer .speaker-name {
+    font-weight: bold;
+    color: #007bff; /* Blue for customer name, or choose another accent */
+    display: block;
+    font-size: 0.8em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.chat-bubble.rikk {
+    background-color: #007bff; /* Primary blue for Rikk */
+    color: white;
+    align-self: flex-end; /* Align to the right */
+    border-bottom-right-radius: 5px; /* "Tail" for Rikk's bubble */
+}
+.chat-bubble.narration {
+    background-color: #495057; /* Neutral dark grey for narration */
+    color: #e0e0e0; /* Light text */
+    align-self: center; /* Center narration bubbles */
+    font-style: italic;
+    text-align: center;
+    max-width: 90%; /* Narration can be wider */
+    font-size: 0.9em;
+    border-radius: 8px; /* Less pronounced rounding for narration */
+    padding: 8px 12px;
+}
+
+/* Choices Area (for action buttons) */
+#choices-area {
+    width: 100%;
+    padding: 15px 10px; /* Padding around buttons */
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Space between buttons */
+    align-items: center; /* Center buttons horizontally */
+    flex-shrink: 0; /* Prevent shrinking */
+    background-color: rgba(0,0,0,0.1); /* Subtle background to differentiate from chat */
+}
+
+/* General Game Button Styles (Start/End screens) & Choice Buttons */
+.game-button, .choice-button {
+    background: linear-gradient(to bottom, #fbc531, #e1a200); /* Yellow/Orange gradient */
+    color: #333; /* Dark text on light button */
+    border: 2px solid #c78d00; /* Darker border */
+    padding: 12px 20px;
+    border-radius: 25px; /* Rounded for a gamey feel */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    font-family: 'Comic Neue', cursive; /* Thematic font */
+    transition: all 0.15s ease; /* Quick transition for interactions */
+    width: 85%; /* Button width */
+    max-width: 300px; /* Max button width */
+    text-shadow: 1px 1px rgba(255,255,255,0.3); /* Slight highlight on text */
+    box-shadow: 0 4px #c78d00; /* 3D button effect */
+    outline: none; /* Remove default focus outline */
+}
+.game-button:hover, .choice-button:hover {
+    background: linear-gradient(to bottom, #fdd835, #f5b000); /* Lighter on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 6px #c78d00; /* Adjust shadow on hover */
+}
+.game-button:active, .choice-button:active {
+    transform: translateY(1px); /* Press down effect */
+    box-shadow: 0 2px #c78d00; /* Reduced shadow on active */
+}
+
+.choice-button.decline { /* Specific style for decline/cancel buttons */
+    background: linear-gradient(to bottom, #e74c3c, #c0392b); /* Red gradient */
+    border-color: #a5281b;
+    box-shadow: 0 4px #a5281b;
+    color: white; /* Light text on dark button */
+}
+.choice-button.decline:hover {
+    background: linear-gradient(to bottom, #ff6b5b, #d35400);
+    box-shadow: 0 6px #a5281b;
+}
+.choice-button.decline:active {
+    box-shadow: 0 2px #a5281b;
+}
+
+.game-button:disabled, .choice-button:disabled { /* Style for disabled buttons */
+    background: #bdc3c7; /* Muted grey */
+    border-color: #95a5a6;
+    box-shadow: 0 4px #95a5a6;
+    color: #7f8c8d;
+    cursor: not-allowed;
+    transform: translateY(0); /* No hover/active effect */
+}
+
+/* Player Hub (Inventory & Next Customer buttons at the bottom) */
+#player-hub {
+    width: 100%;
+    padding: 12px 10px;
+    background-color: rgba(0,0,0,0.35); /* Darker bar for player actions */
+    border-top: 1px solid rgba(255,255,255,0.2);
     display: flex;
     justify-content: space-around;
-    font-weight: bold;
+    align-items: center;
+    flex-shrink: 0;
 }
-
-#game-messages {
-    background-color: #2c3e50;
-    border: 1px solid #3498db; /* Blue border */
-    padding: 20px;
-    border-radius: 8px;
-    min-height: 120px;
-    text-align: left;
-    margin-bottom: 20px;
-    overflow-y: auto;
-    max-height: 200px;
-}
-
-#game-messages p {
-    margin: 8px 0;
-    line-height: 1.4;
-}
-
-#knock-message {
-    font-weight: bold;
-    color: #f39c12; /* Orange, was red */
-}
-
-#customer-message {
-    font-style: italic;
-    color: #bdc3c7; /* Light grey, fine as is */
-}
-
-#action-message {
-    font-weight: bold;
-    color: #2ecc71; /* Green, was orange - for success/action feedback */
-}
-
-/* Inventory View Styles */
-#inventory-view {
-    background-color: #2c3e50; /* Consistent with game-messages */
-    border: 1px solid #3498db;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: left;
-    min-height: 120px; /* Match game-messages */
-    max-height: 200px; /* Match game-messages */
-    overflow-y: auto;
-}
-
-#inventory-view h2 {
-    color: #ecf0f1; /* Light grey, like body text */
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-#inventory-list-content p {
-    margin: 8px 0;
-    line-height: 1.4;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed #34495e; /* Subtle separator */
-    color: #bdc3c7;
-}
-
-#inventory-list-content p:last-child {
-    border-bottom: none;
-}
-/* End Inventory View Styles */
-
-
-#options-container button,
-button { /* Applied to all buttons including new ones */
-    background-color: #3498db; /* Blue */
+.hub-button {
+    background-color: #5cb85c; /* Green for general hub actions */
     color: white;
     border: none;
-    padding: 12px 25px;
-    margin: 5px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    padding: 10px 15px;
+    border-radius: 20px; /* Rounded hub buttons */
+    font-size: 0.95em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    transition: all 0.15s ease;
+    box-shadow: 0 3px #449d44; /* 3D effect */
+    outline: none;
+}
+.hub-button:hover {
+    background-color: #4cae4c; /* Darker green on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px #398439;
+}
+.hub-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px #398439;
+}
+.hub-button.main-action { /* For the "Next" button */
+    background-color: #f0ad4e; /* Orange */
+    box-shadow: 0 3px #eea236;
+}
+.hub-button.main-action:hover {
+    background-color: #eea236;
+    box-shadow: 0 4px #d58512;
+}
+.hub-button.main-action:active {
+    box-shadow: 0 1px #d58512;
 }
 
-#options-container button:hover,
-button:hover {
-    background-color: #2980b9; /* Darker blue */
-    transform: translateY(-2px);
-}
-
-#options-container button:active,
-button:active {
+.hub-button:disabled {
+    background-color: #7f8c8d; /* Muted grey for disabled */
+    box-shadow: 0 3px #6c7a7d;
+    cursor: not-allowed;
+    color: #bdc3c7;
     transform: translateY(0);
 }
-
-button.hidden {
-    display: none;
+.button-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1); /* Makes dark icons white, good for PNG icons */
 }
 
-#end-screen p {
-    font-size: 1.2em;
+/* Inventory Modal */
+.modal {
+    display: none; /* Hidden by default, JS toggles to flex */
+    position: fixed;
+    z-index: 1000; /* Highest z-index to be on top of everything */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8); /* Dark overlay for modal background */
+    justify-content: center;
+    align-items: center;
+}
+.modal.active {
+    display: flex; /* Use flex to center modal content */
+}
+.modal-content {
+    background-color: #3a3a3a; /* Dark background for modal content area */
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 380px; /* Max width of the modal */
+    max-height: 80vh; /* Max height, allows scrolling if content overflows */
+    overflow-y: auto; /* Scroll for long inventory lists */
+    position: relative; /* For positioning close button */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    border: 2px solid #ffc107; /* Accent border matching h1 */
+}
+.modal-content h2 {
+    color: #ffc107; /* Match h1 color */
+    text-align: center;
     margin-bottom: 20px;
+}
+.close-modal-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1; /* Ensure consistent positioning */
+}
+.close-modal-btn:hover {
+    color: #fff; /* Lighter on hover */
+}
+#inventory-list p {
+    padding: 10px 5px; /* Padding for inventory items */
+    border-bottom: 1px dashed #555; /* Separator for items */
+    color: #e0e0e0; /* Light text for item names */
+}
+#inventory-list p:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+#inventory-list .item-detail { /* For "Bought: $X, Value: $Y" */
+    font-size: 0.9em;
+    color: #bdc3c7; /* Slightly dimmer text for details */
+    display: block; /* Put details on a new line */
+    margin-top: 4px;
+}
+#inventory-modal p { /* For the "Capacity: X/Y" text */
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+/* Utility Class */
+.hidden {
+    display: none !important; /* Force hide elements with this class */
 }
