@@ -27,18 +27,21 @@
             </div>
 
             <div id="game-scene">
-                <!-- The background image will be applied here via CSS -->
+                <!-- The background image will now be on the <body>, and game-scene is transparent -->
                 <div id="knock-effect" class="hidden">KNOCK!</div>
                 <!-- You could add an invisible div here to represent the door area for knock-effect positioning if needed -->
                 <!-- e.g., <div id="photo-door-interactive-area"></div> -->
-            </div>
 
-            <div id="chat-container">
-                <!-- Chat bubbles will be dynamically added here -->
-            </div>
-
-            <div id="choices-area">
-                <!-- Action buttons dynamically added here -->
+                <!-- NEW: The Phone Display Rikk pulls out -->
+                <div id="rikk-phone-display" class="hidden">
+                    <div id="phone-screen-header">Customer Chat</div>
+                    <div id="chat-container">
+                        <!-- Chat bubbles will be dynamically added here -->
+                    </div>
+                    <div id="choices-area">
+                        <!-- Action buttons dynamically added here -->
+                    </div>
+                </div>
             </div>
 
             <div id="player-hub">
