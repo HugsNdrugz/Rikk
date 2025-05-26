@@ -4,758 +4,358 @@
 |--------------------------------------------------------------------------
 | CSS Custom Properties (Global Variables)
 |--------------------------------------------------------------------------
-|
-| Define all common values here for easy customization and consistency.
-|
 */
 :root {
-    /* --- Colors --- */
-    --color-dark-bg: #1a1a1a;          /* Deep dark background (e.g., body fallback, phone header) */
-    --color-light-text: #f0f0f0;        /* Default light text color */
-    --color-mid-dark: #333;             /* Mid-dark grey (e.g., viewport fallback, scrollbar track) */
-    --color-grey-dark: #555;            /* Darker grey (e.g., scrollbar thumb, inventory list border) */
-    --color-grey-mid: #ccc;             /* Medium grey (e.g., modal capacity text) */
-    --color-grey-light: #aaa;           /* Lighter grey (e.g., close modal button) */
-    --color-grey-dim: #bdc3c7;          /* Dim grey (e.g., inventory item details) */
-
-    /* Accent Colors (often used for game branding/UI elements) */
-    --color-accent-gold: #ffc107;       /* Bright yellow/gold (e.g., H1, modal title) */
-    --color-accent-orange: #ff9800;     /* Orange accent (e.g., H2) */
-    --color-link-blue: #007bff;         /* Standard blue (e.g., customer name in chat) */
+    /* Colors */
+    --color-dark-bg: #1a1a1a;
+    --color-light-text: #f0f0f0;
+    --color-mid-dark: #333;
+    --color-grey-dark: #555;
+    --color-grey-mid: #ccc;
+    --color-grey-light: #aaa;
+    --color-grey-dim: #bdc3c7;
+    
+    /* Accent Colors */
+    --color-accent-gold: #ffc107;
+    --color-accent-orange: #ff9800;
+    --color-link-blue: #007bff;
+    --color-success-green: #28a745;
+    --color-danger-red: #dc3545;
 
     /* Semi-Transparent Overlays */
-    --color-overlay-dark-strong: rgba(0, 0, 0, 0.85); /* Strong dark overlay (e.g., start/end screens) */
-    --color-overlay-dark-medium: rgba(0, 0, 0, 0.5);  /* Medium dark overlay (e.g., HUD) */
-    --color-overlay-dark-subtle: rgba(0, 0, 0, 0.3);  /* Subtle dark overlay (e.g., game viewport) */
-    --color-overlay-dark-light: rgba(0, 0, 0, 0.15); /* Light dark overlay (e.g., chat background) */
-    --color-overlay-dark-faint: rgba(0, 0, 0, 0.1);  /* Very light dark overlay (e.g., choices area) */
-    --color-overlay-dark-player-hub: rgba(0, 0, 0, 0.35); /* Player hub specific dark overlay */
+    --color-overlay-dark-strong: rgba(0, 0, 0, 0.85);
+    --color-overlay-dark-medium: rgba(0, 0, 0, 0.5);
+    --color-overlay-dark-subtle: rgba(0, 0, 0, 0.3);
+    --color-overlay-dark-light: rgba(0, 0, 0, 0.15);
+    --color-overlay-dark-faint: rgba(0, 0, 0, 0.1);
+    --color-overlay-dark-player-hub: rgba(0, 0, 0, 0.35);
 
-    /* Button Specific Colors (Gradients and States) */
-    --color-button-yellow-start: #fbc531; /* Yellow button gradient start */
-    --color-button-yellow-end: #e1a200;   /* Yellow button gradient end */
-    --color-button-yellow-hover-start: #fdd835; /* Yellow button hover gradient start */
-    --color-button-yellow-hover-end: #f5b000;   /* Yellow button hover gradient end */
-    --color-button-yellow-border: #c78d00;      /* Yellow button border color */
-    --color-button-red-start: #e74c3c;    /* Red button gradient start (decline) */
-    --color-button-red-end: #c0392b;      /* Red button gradient end (decline) */
-    --color-button-red-hover-start: #ff6b5b; /* Red button hover gradient start */
-    --color-button-red-hover-end: #d35400;   /* Red button hover gradient end */
-    --color-button-red-border: #a5281b;       /* Red button border color */
+    /* Button Colors */
+    --color-button-yellow-start: #fbc531;
+    --color-button-yellow-end: #e1a200;
+    --color-button-yellow-hover-start: #fdd835;
+    --color-button-yellow-hover-end: #f5b000;
+    --color-button-yellow-border: #c78d00;
+    --color-button-red-start: #e74c3c;
+    --color-button-red-end: #c0392b;
+    --color-button-red-hover-start: #ff6b5b;
+    --color-button-red-hover-end: #d35400;
+    --color-button-red-border: #a5281b;
+    --color-button-green-start: #2ecc71;
+    --color-button-green-end: #27ae60;
+    
+    /* Disabled States */
+    --color-disabled-bg: #bdc3c7;
+    --color-disabled-border: #95a5a6;
+    --color-disabled-text: #7f8c8d;
 
-    /* Disabled Button Colors */
-    --color-disabled-bg: #bdc3c7;         /* Disabled button background */
-    --color-disabled-border: #95a5a6;     /* Disabled button border */
-    --color-disabled-text: #7f8c8d;       /* Disabled button text */
+    /* Chat Bubbles */
+    --color-bubble-customer: #e9ecef;
+    --color-bubble-customer-text: #212529;
+    --color-bubble-rikk-main: #007bff;
+    --color-bubble-narration: #495057;
+    --color-bubble-narration-text: #e0e0e0;
 
-    /* Chat Bubble Colors */
-    --color-bubble-customer: #e9ecef;     /* Customer chat bubble background */
-    --color-bubble-customer-text: #212529;/* Customer chat bubble text */
-    --color-bubble-rikk-main: #007bff;   /* Rikk's chat bubble background (primary blue) */
-    --color-bubble-narration: #495057;     /* Narration chat bubble background */
-    --color-bubble-narration-text: #e0e0e0;/* Narration chat bubble text */
+    /* Hub Buttons */
+    --color-hub-green-main: #5cb85c;
+    --color-hub-green-shadow: #449d44;
+    --color-hub-green-hover: #4cae4c;
+    --color-hub-green-active: #398439;
+    --color-hub-orange-main: #f0ad4e;
+    --color-hub-orange-shadow: #eea236;
+    --color-hub-orange-hover: #d58512;
 
-    /* Hub Button Colors (e.g., Inventory, Next) */
-    --color-hub-green-main: #5cb85c;      /* Green hub button main color */
-    --color-hub-green-shadow: #449d44;    /* Green hub button shadow */
-    --color-hub-green-hover: #4cae4c;     /* Green hub button hover color */
-    --color-hub-green-active: #398439;    /* Green hub button active color */
-    --color-hub-orange-main: #f0ad4e;     /* Orange hub button main color (for 'Next') */
-    --color-hub-orange-shadow: #eea236;   /* Orange hub button shadow */
-    --color-hub-orange-hover: #d58512;    /* Orange hub button hover color */
+    /* Fonts */
+    --font-body: 'Open Sans', sans-serif;
+    --font-game-title: 'Comic Neue', cursive;
 
-    /* --- Fonts --- */
-    --font-body: 'Open Sans', sans-serif;         /* Default font for general text */
-    --font-game-title: 'Comic Neue', cursive;     /* Thematic font for titles and prominent text */
+    /* Sizes & Dimensions */
+    --viewport-max-width: 420px;
+    --viewport-border-radius: 15px;
+    --phone-max-width: 280px;
+    --phone-max-height: 400px;
+    --phone-border-radius: 25px;
+    --modal-max-width: 380px;
+    --modal-border-radius: 10px;
+    --button-border-radius: 25px;
+    --chat-bubble-border-radius: 18px;
+    --chat-bubble-tail-radius: 5px;
+    --narration-bubble-border-radius: 8px;
+    --icon-size: 20px;
 
-    /* --- Image Paths --- */
-    --path-body-bg-image: url('/bg.png');                /* Full-screen background for the entire browser window */
-    --path-start-screen-bg-image: url('/start-bg.jpg');  /* Background for the start/splash screen */
-    --path-game-scene-bg-image: url('/game-bg.jpg'); /* Background for the main game area (inside phone viewport) */
-    /* Note: backpack-icon.png and next-icon.png are referenced directly in HTML,
-       so their paths are not defined here, but they are essential assets. */
-
-    /* --- Sizes & Dimensions --- */
-    --viewport-max-width: 420px;          /* Maximum width of the simulated mobile viewport */
-    --viewport-border-radius: 15px;       /* Border-radius for the game viewport */
-
-    --phone-max-width: 280px;             /* Maximum width of the pulled-out phone display */
-    --phone-max-height: 400px;            /* Maximum height of the pulled-out phone display */
-    --phone-border-radius: 25px;          /* Border-radius for the phone display */
-    --phone-bottom-offset: 20px;          /* Distance from bottom for phone display */
-    --phone-right-offset: 20px;           /* Distance from right for phone display */
-
-    --modal-max-width: 380px;             /* Maximum width of modal windows */
-    --modal-border-radius: 10px;          /* Border-radius for modal content */
-
-    --button-general-width: 85%;          /* General width for game buttons (start/end screens) */
-    --button-general-max-width: 300px;    /* Max width for general game buttons */
-    --button-choice-width: 95%;           /* Width for choice buttons (within phone) */
-    --button-choice-max-width: 260px;     /* Max width for choice buttons */
-    --button-border-radius: 25px;         /* Border-radius for most buttons */
-
-    --chat-bubble-border-radius: 18px;    /* Border-radius for chat bubbles */
-    --chat-bubble-tail-radius: 5px;       /* Smaller border-radius for chat bubble "tails" */
-    --narration-bubble-border-radius: 8px;/* Border-radius for narration bubbles */
-
-    --icon-size: 20px;                    /* Standard size for button icons */
-
-    /* --- Spacing --- */
+    /* Spacing */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
-    --spacing-md: 10px;
-    --spacing-lg: 15px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
     --spacing-xl: 20px;
-    --spacing-xxl: 25px;
+    --spacing-xxl: 24px;
 
-    /* --- Transitions & Animations --- */
-    --transition-fade-quick: 0.3s ease;           /* Quick fade for pop-in effects */
-    --transition-screen-fade: 0.5s ease-in-out;   /* Smooth fade for screen transitions */
-    --transition-phone-slide: 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Phone slide-in/out */
-    --transition-button-quick: 0.15s ease;        /* Quick transition for button hover/active */
-    --animation-knock-duration: 0.5s;             /* Duration for the KNOCK! animation */
-    --animation-pop-in-duration: 0.3s;            /* Duration for chat bubble pop-in */
+    /* Transitions & Animations */
+    --transition-fade-quick: 0.3s ease;
+    --transition-screen-fade: 0.5s ease-in-out;
+    --transition-phone-slide: 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    --transition-button-quick: 0.15s ease;
+    --animation-knock-duration: 0.5s;
+    --animation-pop-in-duration: 0.3s;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Base Styles & Reset
-|--------------------------------------------------------------------------
-|
-| Universal box-sizing, margin/padding reset, and body defaults.
-|
-*/
+/* Base Styles & Reset */
 * {
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    margin: 0;              /* Remove default margins */
-    padding: 0;             /* Remove default paddings */
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: var(--font-body);      /* Apply default body font */
-    background-color: var(--color-dark-bg); /* Fallback background color, visible if image fails to load */
-    color: var(--color-light-text);     /* Default text color for the entire page */
-    display: flex;                      /* Use flexbox to center the game viewport */
-    justify-content: center;            /* Center horizontally */
-    align-items: center;                /* Center vertically */
-    min-height: 100vh;                  /* Ensure body takes full viewport height */
-    overflow: hidden;                   /* Prevent scrollbars on the body */
-
-    /* Full-screen background image for the entire browser viewport (desktop view) */
-    background-image: var(--path-body-bg-image); /* Apply the main background image */
-    background-size: cover;             /* Scale the image to cover the entire area, cropping if necessary */
-    background-position: center center; /* Center the image within the background area */
-    background-repeat: no-repeat;       /* Prevent the image from tiling */
-    background-attachment: fixed;       /* Keep the background image fixed when content scrolls (if scroll was enabled) */
+    font-family: var(--font-body);
+    background-color: var(--color-dark-bg);
+    color: var(--color-light-text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Game Viewport (Simulates a Mobile Device Screen)
-|--------------------------------------------------------------------------
-|
-| This container acts as the "phone" or "device" that holds the game.
-|
-*/
+/* Game Viewport */
 #game-viewport {
-    width: 100%;                          /* Take full width on smaller screens */
-    max-width: var(--viewport-max-width); /* Limit width on larger screens to simulate mobile device */
-    height: 100vh;                        /* Take full viewport height */
-    max-height: 2400px;                   /* A large max-height to ensure it scales on very tall screens */
-    background-color: var(--color-overlay-dark-subtle); /* Subtle dark overlay to show body background through */
-    border-radius: var(--viewport-border-radius); /* Rounded corners for the "device" aesthetic */
-    box-shadow: 0 0 30px rgba(0,0,0,0.6); /* Shadow for the "device" effect */
-    display: flex;                        /* Use flexbox for internal layout (column) */
-    flex-direction: column;               /* Stack elements vertically */
-    overflow: hidden;                     /* Crucial for screen transitions and layout */
-    position: relative;                   /* For absolute positioning of screens and overlays within it */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Screens (Start, Game, End Overlays)
-|--------------------------------------------------------------------------
-|
-| Base styles for game screens (start, game, end) that sit on top of each other.
-|
-*/
-.screen {
-    position: absolute;   /* Position screens on top of each other within #game-viewport */
-    top: 0;
-    left: 0;
-    width: 100%;          /* Full width of parent */
-    height: 100%;         /* Full height of parent */
-    display: none;        /* Hidden by default, JavaScript controls which is 'active' */
-    flex-direction: column; /* Use flexbox for content centering */
-    align-items: center;  /* Center content horizontally */
-    text-align: center;   /* Center text */
-    transition: opacity var(--transition-screen-fade); /* Smooth fade effect for screen transitions */
-    z-index: 50; /* Base z-index for screens */
-}
-.screen.active {
-    display: flex;        /* Show the active screen */
-}
-
-/* Overlay specific styles for Start & End Screens */
-.overlay-screen {
-    background-color: var(--color-overlay-dark-strong); /* Strong semi-transparent black overlay */
-    justify-content: center; /* Center content vertically */
-    padding: var(--spacing-xl); /* Padding inside the overlay */
-    z-index: 100; /* Ensure overlay screens are on top of the game screen */
-}
-
-/* Specific background for the Start Screen / Splash Screen */
-#start-screen {
-    background-image: var(--path-start-screen-bg-image); /* Apply start screen background */
-    background-size: cover;             /* Scale image to cover the area */
-    background-position: center center; /* Center the image */
-    background-repeat: no-repeat;       /* Prevent tiling */
-    /* Note: The .overlay-screen class will add a dark overlay on top of this image for text readability */
-}
-
-.screen-content { /* Helper class for centering content within start/end screens */
-    margin: auto; /* Auto margins will center the block content */
-}
-
-/*
-|--------------------------------------------------------------------------
-| Typography
-|--------------------------------------------------------------------------
-|
-| Styles for headings and paragraphs.
-|
-*/
-h1 {
-    font-family: var(--font-game-title); /* Thematic game font */
-    font-size: 2.8em;                 /* Large size for main title */
-    color: var(--color-accent-gold);  /* Bright accent color */
-    margin-bottom: var(--spacing-xl); /* Space below title */
-    text-shadow: 2px 2px #000;        /* Simple text shadow for depth */
-}
-h2 {
-    font-family: var(--font-game-title); /* Thematic game font */
-    font-size: 2em;                   /* Smaller heading size */
-    color: var(--color-accent-orange); /* Orange accent color */
-    margin-bottom: var(--spacing-lg); /* Space below heading */
-    text-shadow: 1px 1px #000;        /* Simple text shadow */
-}
-.overlay-screen p {
-    font-size: 1.1em;                 /* Slightly larger text for readability on overlays */
-    margin-bottom: var(--spacing-lg); /* Space below paragraphs */
-    line-height: 1.6;                 /* Increased line height for readability */
-    color: var(--color-light-text);   /* Ensure text is light on dark overlay */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Top HUD (Heads-Up Display)
-|--------------------------------------------------------------------------
-|
-| Displays player stats (cash, day, heat) at the top of the game screen.
-|
-*/
-#top-hud {
-    width: 100%;                              /* Occupy full width */
-    background-color: var(--color-overlay-dark-medium); /* Semi-transparent dark bar */
-    padding: var(--spacing-sm) var(--spacing-lg); /* Padding top/bottom and left/right */
-    display: flex;                            /* Use flexbox */
-    justify-content: space-between;           /* Space out stats evenly */
-    font-size: 0.9em;                         /* Slightly smaller font */
-    color: var(--color-light-text);           /* White text for stats */
-    font-weight: bold;                        /* Bold text */
-    flex-shrink: 0;                           /* Prevent this bar from shrinking */
-    z-index: 50;                              /* Above game scene, below overlays */
-    text-shadow: 1px 1px 2px #000;            /* Text shadow for readability */
-}
-#top-hud span {
-    margin: 0 var(--spacing-sm);              /* Spacing around individual stat items */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Game Scene (Main Visual Area inside the phone viewport)
-|--------------------------------------------------------------------------
-|
-| This is the core game area where the background image (door/house) and
-| interactive elements like the knock effect appear.
-|
-*/
-#game-scene {
-    flex-grow: 1;                             /* Takes up available vertical space within #game-viewport */
-    width: 100%;                              /* Occupy full width */
-    display: flex;                            /* Use flexbox (though not strictly necessary here, good for centering) */
-    justify-content: center;                  /* Center horizontally */
-    align-items: center;                      /* Center vertically */
-    position: relative;                       /* For absolute positioning of elements like knock-effect and the new phone display */
-    overflow: hidden;                         /* Clip any overflow (e.g., phone sliding in/out) */
-
-    /* Game Scene specific background image */
-    background-image: var(--path-game-scene-bg-image); /* Apply the game scene background */
-    background-size: cover;             /* Scale image to cover the area */
-    background-position: center center; /* Center the image */
-    background-repeat: no-repeat;       /* Prevent tiling */
-    background-color: var(--color-dark-bg); /* Fallback background for game scene */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Knock Effect
-|--------------------------------------------------------------------------
-|
-| The "KNOCK!" text that appears when a customer arrives.
-|
-*/
-#knock-effect {
-    position: absolute;   /* Position relative to #game-scene */
-    /* Adjust 'top' and 'left' to align over the door in your specific /game-scene-bg.png image */
-    top: 55%;             /* Example: Adjust this percentage from the top */
-    left: 50%;            /* Example: Horizontally centered */
-    transform: translate(-50%, -50%); /* Centers the element precisely on its own axis at the (top, left) point */
-    font-family: var(--font-game-title); /* Thematic font */
-    font-size: 2.2em;     /* Prominent size */
-    color: var(--color-light-text); /* White text */
-    background-color: rgba(220, 50, 50, 0.85); /* Strong red, semi-transparent */
-    padding: var(--spacing-sm) var(--spacing-lg); /* Padding around text */
-    border-radius: var(--button-border-radius); /* Rounded speech bubble style */
-    text-shadow: 1px 1px 2px #000; /* Text shadow for clarity */
-    animation: knockAnim var(--animation-knock-duration) ease-out; /* Apply knock animation */
-    z-index: 10;          /* Above the game scene background */
-    pointer-events: none; /* Crucial: ensures it doesn't block clicks on elements behind it */
-}
-/* Keyframe animation for the knock effect */
-@keyframes knockAnim {
-    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }     /* Starts small and invisible */
-    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }   /* Grows larger than final size */
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }    /* Settles at final size and fully visible */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Rikk's Phone Display
-|--------------------------------------------------------------------------
-|
-| This is the simulated phone screen Rikk "pulls out" for chat and choices.
-|
-*/
-#rikk-phone-display {
-    position: absolute;   /* Positioned within #game-scene */
-    bottom: var(--phone-bottom-offset); /* Distance from the bottom of #game-scene */
-    right: var(--phone-right-offset);   /* Distance from the right of #game-scene */
-    width: 85%;           /* Width relative to #game-scene */
-    max-width: var(--phone-max-width); /* Max width for consistency across screen sizes */
-    height: 70%;          /* Height relative to #game-scene */
-    max-height: var(--phone-max-height); /* Max height for consistency */
-    background-color: var(--color-mid-dark); /* Dark background for the phone body */
-    border-radius: var(--phone-border-radius); /* Rounded corners for the phone device */
-    box-shadow: 0 5px 25px rgba(0,0,0,0.8); /* Stronger shadow for a lifted, 3D effect */
-    display: flex;        /* Use flexbox for internal layout (column) */
+    width: 100%;
+    max-width: var(--viewport-max-width);
+    height: 100vh;
+    background-color: var(--color-overlay-dark-subtle);
+    border-radius: var(--viewport-border-radius);
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    display: flex;
     flex-direction: column;
-    overflow: hidden;     /* Crucial for containing chat/choices and smooth animations */
-    z-index: 20;          /* Above game elements, below modal overlays */
-    border: 2px solid var(--color-grey-dark); /* Subtle border for phone edge */
-
-    /* Initial state for slide-in animation: off-screen and invisible */
-    transform: translateX(120%) translateY(120%); /* Starts far off-screen to bottom-right */
-    opacity: 0;           /* Starts fully invisible */
-    transition: transform var(--transition-phone-slide), opacity var(--transition-phone-slide); /* Apply slide and fade transition */
-    pointer-events: none; /* Initially non-interactive, only becomes interactive when active */
+    overflow: hidden;
+    position: relative;
 }
 
-/* State when the phone display is active/visible */
-#rikk-phone-display.active {
-    transform: translateX(0) translateY(0); /* Slides to final position (on-screen) */
-    opacity: 1;           /* Fades in to fully visible */
-    pointer-events: auto; /* Makes the phone interactive when active */
-}
-
-/* Header for the pulled-out phone screen */
-#phone-screen-header {
-    padding: var(--spacing-md) var(--spacing-lg); /* Padding around text */
-    background-color: var(--color-dark-bg);  /* Dark background for the header bar */
-    color: var(--color-light-text);           /* Light text color */
-    font-weight: bold;                        /* Bold font */
-    text-align: center;                       /* Center the text */
-    border-bottom: 1px solid var(--color-mid-dark); /* Separator line */
-    font-family: var(--font-game-title);     /* Thematic font */
-    font-size: 1.1em;                         /* Font size */
-    flex-shrink: 0;                           /* Prevent header from shrinking */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Chat Container & Bubbles
-|--------------------------------------------------------------------------
-|
-| Styles for the chat messages and the container that holds them.
-| Now nested inside `#rikk-phone-display`.
-|
-*/
-#chat-container {
-    flex-grow: 1;         /* Takes up available space within the phone */
-    width: 100%;          /* Fills the phone's width */
-    height: auto;         /* Flexible height within its flex parent */
-    padding: var(--spacing-md); /* Padding inside the chat area */
-    overflow-y: auto;     /* Enable vertical scroll if content exceeds height */
-    display: flex;        /* Use flexbox */
-    flex-direction: column-reverse; /* Newest messages appear at bottom and scroll into view */
-    background-color: transparent; /* Phone body provides the background */
-    border-top: none;     /* No extra borders when inside phone */
-    border-bottom: none;
-    flex-shrink: 1;       /* Allow shrinking if needed */
-    margin-top: auto;     /* Pushes content to the bottom of the chat area (due to column-reverse) */
-
-    /* Custom scrollbar styles for Firefox */
-    scrollbar-width: thin; /* Make scrollbar thinner */
-    scrollbar-color: var(--color-grey-dark) var(--color-mid-dark); /* Thumb color, Track color */
-}
-
-/* Custom scrollbar for Webkit browsers (Chrome, Safari, Edge) */
-#chat-container::-webkit-scrollbar {
-    width: var(--spacing-sm); /* Width of the scrollbar */
-}
-#chat-container::-webkit-scrollbar-track {
-    background: var(--color-mid-dark); /* Background of the scrollbar track */
-    border-radius: var(--modal-border-radius); /* Rounded track corners */
-}
-#chat-container::-webkit-scrollbar-thumb {
-    background-color: var(--color-grey-dark); /* Color of the scrollbar thumb */
-    border-radius: var(--modal-border-radius); /* Rounded thumb corners */
-    border: 2px solid var(--color-mid-dark); /* Border around the thumb */
-}
-
-/* Base styles for individual chat bubbles */
-.chat-bubble {
-    max-width: 85%;       /* Max width of a bubble to prevent stretching */
-    padding: var(--spacing-md) var(--spacing-lg); /* Padding inside the bubble */
-    border-radius: var(--chat-bubble-border-radius); /* Rounded bubble corners */
-    margin-bottom: var(--spacing-sm); /* Space between bubbles */
-    line-height: 1.45;    /* Line height for readability */
-    font-size: 0.95em;    /* Font size */
-    box-shadow: 1px 2px 3px rgba(0,0,0,0.25); /* Subtle shadow for depth */
-    opacity: 0;           /* Start invisible for pop-in animation */
-    transform: scale(0.8);/* Start smaller for pop-in animation */
-    animation: popIn var(--animation-pop-in-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Pop-in animation */
-    /* Adjust margins to fit within the phone screen and provide inner spacing */
-    margin-left: 5px;
-    margin-right: 5px;
-}
-/* Keyframe animation for chat bubble pop-in */
-@keyframes popIn {
-    to { opacity: 1; transform: scale(1); } /* Ends fully visible and at normal size */
-}
-
-/* Customer chat bubble specific styles */
-.chat-bubble.customer {
-    background-color: var(--color-bubble-customer); /* Light grey for customer bubble */
-    color: var(--color-bubble-customer-text);    /* Dark text for readability */
-    align-self: flex-start;               /* Align to the left (start of flex container) */
-    border-bottom-left-radius: var(--chat-bubble-tail-radius); /* "Tail" effect for customer bubble */
-}
-.chat-bubble.customer .speaker-name {
-    font-weight: bold;                    /* Bold name */
-    color: var(--color-link-blue);        /* Blue for customer name */
-    display: block;                       /* Place name on a new line */
-    font-size: 0.8em;                     /* Smaller font for name */
-    margin-bottom: var(--spacing-xs);     /* Space below name */
-    text-transform: uppercase;            /* Uppercase name for emphasis */
-}
-
-/* Rikk's chat bubble specific styles */
-.chat-bubble.rikk {
-    background-color: var(--color-bubble-rikk-main); /* Primary blue for Rikk */
-    color: var(--color-light-text);           /* White text */
-    align-self: flex-end;                 /* Align to the right (end of flex container) */
-    border-bottom-right-radius: var(--chat-bubble-tail-radius); /* "Tail" effect for Rikk's bubble */
-}
-
-/* Narration chat bubble specific styles */
-.chat-bubble.narration {
-    background-color: var(--color-bubble-narration); /* Neutral dark grey for narration */
-    color: var(--color-bubble-narration-text);   /* Light text */
-    align-self: center;                   /* Center narration bubbles */
-    font-style: italic;                   /* Italicize narration */
-    text-align: center;                   /* Center text within bubble */
-    max-width: 90%;                       /* Narration can be wider than regular bubbles */
-    font-size: 0.9em;                     /* Slightly smaller font for narration */
-    border-radius: var(--narration-bubble-border-radius); /* Less pronounced rounding */
-    padding: var(--spacing-sm) var(--spacing-md); /* Padding */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Choices Area (Action Buttons)
-|--------------------------------------------------------------------------
-|
-| Container for the action buttons, now nested inside `#rikk-phone-display`.
-|
-*/
-#choices-area {
-    width: 100%;                          /* Full width of its parent */
-    padding: var(--spacing-md);           /* Padding around buttons */
-    display: flex;                        /* Use flexbox */
-    flex-direction: column;               /* Stack buttons vertically */
-    gap: var(--spacing-sm);               /* Space between buttons */
-    align-items: center;                  /* Center buttons horizontally */
-    flex-shrink: 0;                       /* Prevent this area from shrinking */
-    background-color: transparent;        /* Phone body provides background */
-    border-top: 1px solid var(--color-mid-dark); /* Separator from chat section */
-    margin-top: auto;                     /* Push choices to bottom if chat doesn't fill space */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| General Game Buttons & Choice Buttons
-|--------------------------------------------------------------------------
-|
-| Unified styles for buttons across the game (start/end screens, and choices).
-|
-*/
-/* Styles for general game buttons (e.g., Start Hustlin', Go Again) */
-.game-button {
-    background: linear-gradient(to bottom, var(--color-button-yellow-start), var(--color-button-yellow-end)); /* Yellow/Orange gradient */
-    color: var(--color-mid-dark);             /* Dark text on light button */
-    border: 2px solid var(--color-button-yellow-border); /* Darker border */
-    padding: var(--spacing-md) var(--spacing-xl); /* Padding */
-    border-radius: var(--button-border-radius); /* Rounded for a gamey feel */
-    cursor: pointer;                          /* Pointer cursor on hover */
-    font-size: 1.1em;                         /* Larger font size */
-    font-weight: bold;                        /* Bold text */
-    font-family: var(--font-game-title);     /* Thematic font */
-    transition: all var(--transition-button-quick); /* Quick transition for interactions */
-    width: var(--button-general-width);       /* Button width */
-    max-width: var(--button-general-max-width); /* Max button width */
-    text-shadow: 1px 1px rgba(255,255,255,0.3); /* Slight highlight on text */
-    box-shadow: 0 4px var(--color-button-yellow-border); /* 3D button effect */
-    outline: none;                            /* Remove default focus outline */
-}
-.game-button:hover {
-    background: linear-gradient(to bottom, var(--color-button-yellow-hover-start), var(--color-button-yellow-hover-end)); /* Lighter on hover */
-    transform: translateY(-2px);              /* Slight lift on hover */
-    box-shadow: 0 6px var(--color-button-yellow-border); /* Adjust shadow on hover */
-}
-.game-button:active {
-    transform: translateY(1px);               /* Press down effect */
-    box-shadow: 0 2px var(--color-button-yellow-border); /* Reduced shadow on active */
-}
-
-/* Styles for choice buttons (within the pulled-out phone display) */
-.choice-button {
-    background: linear-gradient(to bottom, var(--color-button-yellow-start), var(--color-button-yellow-end)); /* Yellow/Orange gradient */
-    color: var(--color-mid-dark);             /* Dark text on light button */
-    border: 2px solid var(--color-button-yellow-border); /* Darker border */
-    padding: var(--spacing-md) var(--spacing-lg); /* Slightly smaller padding for phone */
-    border-radius: var(--button-border-radius); /* Rounded for a gamey feel */
-    cursor: pointer;                          /* Pointer cursor on hover */
-    font-size: 1em;                           /* Slightly smaller font for phone */
-    font-weight: bold;                        /* Bold text */
-    font-family: var(--font-game-title);     /* Thematic font */
-    transition: all var(--transition-button-quick); /* Quick transition for interactions */
-    width: var(--button-choice-width);        /* Make buttons slightly wider within the phone */
-    max-width: var(--button-choice-max-width); /* Max button width for phone */
-    text-shadow: 1px 1px rgba(255,255,255,0.3); /* Slight highlight on text */
-    box-shadow: 0 4px var(--color-button-yellow-border); /* 3D button effect */
-    outline: none;                            /* Remove default focus outline */
-}
-.choice-button:hover {
-    background: linear-gradient(to bottom, var(--color-button-yellow-hover-start), var(--color-button-yellow-hover-end)); /* Lighter on hover */
-    transform: translateY(-2px);              /* Slight lift on hover */
-    box-shadow: 0 6px var(--color-button-yellow-border); /* Adjust shadow on hover */
-}
-.choice-button:active {
-    transform: translateY(1px);               /* Press down effect */
-    box-shadow: 0 2px var(--color-button-yellow-border); /* Reduced shadow on active */
-}
-
-/* Specific style for decline/cancel type choice buttons */
-.choice-button.decline {
-    background: linear-gradient(to bottom, var(--color-button-red-start), var(--color-button-red-end)); /* Red gradient */
-    border-color: var(--color-button-red-border);
-    box-shadow: 0 4px var(--color-button-red-border);
-    color: var(--color-light-text);           /* Light text on dark button */
-}
-.choice-button.decline:hover {
-    background: linear-gradient(to bottom, var(--color-button-red-hover-start), var(--color-button-red-hover-end));
-    box-shadow: 0 6px var(--color-button-red-border);
-}
-.choice-button.decline:active {
-    box-shadow: 0 2px var(--color-button-red-border);
-}
-
-/* Styles for disabled buttons (both .game-button and .choice-button) */
-.game-button:disabled, .choice-button:disabled {
-    background: var(--color-disabled-bg);    /* Muted grey */
-    border-color: var(--color-disabled-border);
-    box-shadow: 0 4px var(--color-disabled-border);
-    color: var(--color-disabled-text);
-    cursor: not-allowed;                      /* Show "not allowed" cursor */
-    transform: translateY(0);                 /* No hover/active effect */
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Player Hub
-|--------------------------------------------------------------------------
-|
-| Buttons at the bottom of the main game viewport (e.g., Inventory, Next Customer).
-|
-*/
-#player-hub {
-    width: 100%;                              /* Full width */
-    padding: var(--spacing-md) var(--spacing-md); /* Padding */
-    background-color: var(--color-overlay-dark-player-hub); /* Darker bar for player actions */
-    border-top: 1px solid rgba(255,255,255,0.2); /* Subtle top border */
-    display: flex;                            /* Use flexbox */
-    justify-content: space-around;            /* Space out buttons evenly */
-    align-items: center;                      /* Center items vertically */
-    flex-shrink: 0;                           /* Prevent shrinking */
-}
-.hub-button {
-    background-color: var(--color-hub-green-main); /* Green for general hub actions */
-    color: var(--color-light-text);           /* White text */
-    border: none;                             /* No border */
-    padding: var(--spacing-md) var(--spacing-lg); /* Padding */
-    border-radius: var(--button-border-radius); /* Rounded hub buttons */
-    font-size: 0.95em;                        /* Font size */
-    font-weight: bold;                        /* Bold text */
-    display: flex;                            /* Use flexbox for icon and text */
-    align-items: center;                      /* Center icon and text vertically */
-    gap: var(--spacing-sm);                   /* Space between icon and text */
-    transition: all var(--transition-button-quick); /* Quick transition */
-    box-shadow: 0 3px var(--color-hub-green-shadow); /* 3D effect */
-    outline: none;                            /* Remove outline */
-    cursor: pointer;
-}
-.hub-button:hover {
-    background-color: var(--color-hub-green-hover); /* Darker green on hover */
-    transform: translateY(-1px);                  /* Slight lift */
-    box-shadow: 0 4px var(--color-hub-green-active); /* Adjust shadow */
-}
-.hub-button:active {
-    transform: translateY(1px);                   /* Press down effect */
-    box-shadow: 0 1px var(--color-hub-green-active); /* Reduced shadow */
-}
-.hub-button.main-action { /* Specific style for the "Next" button */
-    background-color: var(--color-hub-orange-main); /* Orange */
-    box-shadow: 0 3px var(--color-hub-orange-shadow);
-}
-.hub-button.main-action:hover {
-    background-color: var(--color-hub-orange-hover);
-    box-shadow: 0 4px var(--color-hub-orange-hover);
-}
-.hub-button.main-action:active {
-    box-shadow: 0 1px var(--color-hub-orange-hover);
-}
-.hub-button:disabled {
-    background-color: var(--color-disabled-text); /* Muted grey for disabled */
-    box-shadow: 0 3px var(--color-disabled-border);
-    cursor: not-allowed;
-    color: var(--color-disabled-bg);
-    transform: translateY(0);
-}
-.button-icon {
-    width: var(--icon-size);                  /* Set icon width */
-    height: var(--icon-size);                 /* Set icon height */
-    /* Adjusts the icon color for PNGs: brightness(0) makes it black, invert(1) makes it white */
-    filter: brightness(0) invert(1);
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Inventory Modal
-|--------------------------------------------------------------------------
-|
-| Styles for the inventory pop-up window.
-|
-*/
-.modal {
-    display: none;        /* Hidden by default, JS toggles to flex */
-    position: fixed;      /* Fixed position relative to the viewport */
-    z-index: 1000;        /* Highest z-index to be on top of everything */
-    left: 0;
+/* Screen Styles */
+.screen {
+    position: absolute;
     top: 0;
-    width: 100%;          /* Full width of viewport */
-    height: 100%;         /* Full height of viewport */
-    background-color: var(--color-overlay-dark-strong); /* Dark overlay for modal background */
-    justify-content: center; /* Center modal content horizontally */
-    align-items: center;     /* Center modal content vertically */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: opacity var(--transition-screen-fade);
 }
+
+.screen.active {
+    display: flex;
+}
+
+.overlay-screen {
+    background-color: var(--color-overlay-dark-strong);
+    justify-content: center;
+    padding: var(--spacing-xl);
+}
+
+/* Typography */
+h1 {
+    font-family: var(--font-game-title);
+    font-size: 2.8em;
+    color: var(--color-accent-gold);
+    margin-bottom: var(--spacing-xl);
+    text-shadow: 2px 2px #000;
+}
+
+h2 {
+    font-family: var(--font-game-title);
+    font-size: 2em;
+    color: var(--color-accent-orange);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* HUD */
+#top-hud {
+    width: 100%;
+    background-color: var(--color-overlay-dark-medium);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* Knock Effect */
+#knock-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-game-title);
+    font-size: 2.2em;
+    color: var(--color-light-text);
+    background-color: var(--color-danger-red);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--button-border-radius);
+    animation: knockAnim var(--animation-knock-duration) ease-out;
+}
+
+@keyframes knockAnim {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Phone Display */
+#rikk-phone-display {
+    position: absolute;
+    bottom: var(--spacing-xl);
+    right: var(--spacing-xl);
+    width: 85%;
+    max-width: var(--phone-max-width);
+    height: 70%;
+    max-height: var(--phone-max-height);
+    background-color: var(--color-mid-dark);
+    border-radius: var(--phone-border-radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform var(--transition-phone-slide),
+                opacity var(--transition-phone-slide);
+}
+
+#rikk-phone-display.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#phone-screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-dark-bg);
+    border-bottom: 1px solid var(--color-grey-dark);
+}
+
+/* Chat Container */
+#chat-container {
+    flex-grow: 1;
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+    max-width: 85%;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--chat-bubble-border-radius);
+    animation: popIn var(--animation-pop-in-duration) forwards;
+}
+
+.chat-bubble.customer {
+    background-color: var(--color-bubble-customer);
+    color: var(--color-bubble-customer-text);
+    align-self: flex-start;
+}
+
+.chat-bubble.rikk {
+    background-color: var(--color-bubble-rikk-main);
+    color: var(--color-light-text);
+    align-self: flex-end;
+}
+
+/* Choice Buttons */
+#choices-area {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.choice-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--button-border-radius);
+    font-family: var(--font-game-title);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform var(--transition-button-quick);
+}
+
+/* Inventory Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-overlay-dark-strong);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
 .modal.active {
-    display: flex;        /* Show the modal when active */
+    display: flex;
 }
+
 .modal-content {
-    background-color: var(--color-mid-dark); /* Dark background for modal content area */
-    padding: var(--spacing-xxl);          /* Padding inside the modal */
-    border-radius: var(--modal-border-radius); /* Rounded corners */
-    width: 90%;                           /* 90% width of its parent (modal overlay) */
-    max-width: var(--modal-max-width);    /* Max width of the modal */
-    max-height: 80vh;                     /* Max height, allows scrolling if content overflows */
-    overflow-y: auto;                     /* Enable vertical scroll for long inventory lists */
-    position: relative;                   /* For positioning the close button */
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5); /* Shadow for depth */
-    border: 2px solid var(--color-accent-gold); /* Accent border matching H1 */
-}
-.modal-content h2 {
-    color: var(--color-accent-gold);      /* Match H1 color */
-    text-align: center;                   /* Center heading text */
-    margin-bottom: var(--spacing-xl);     /* Space below heading */
-}
-.close-modal-btn {
-    color: var(--color-grey-light);       /* Grey color for the 'X' button */
-    position: absolute;                   /* Absolute position relative to modal-content */
-    top: var(--spacing-md);
-    right: var(--spacing-lg);
-    font-size: 32px;                      /* Large font size */
-    font-weight: bold;                    /* Bold */
-    cursor: pointer;                      /* Pointer cursor */
-    line-height: 1;                       /* Ensure consistent positioning */
-}
-.close-modal-btn:hover {
-    color: var(--color-light-text);       /* Lighter color on hover */
-}
-#inventory-list p {
-    padding: var(--spacing-md) var(--spacing-sm); /* Padding for inventory items */
-    border-bottom: 1px dashed var(--color-grey-dark); /* Separator for items */
-    color: var(--color-bubble-narration-text); /* Light text for item names */
-}
-#inventory-list p:last-child {
-    border-bottom: none;                  /* No border for the last item */
-}
-#inventory-list .item-detail { /* For "Bought: $X, Value: $Y" */
-    font-size: 0.9em;                     /* Slightly smaller font */
-    color: var(--color-grey-dim);         /* Slightly dimmer text for details */
-    display: block;                       /* Put details on a new line */
-    margin-top: var(--spacing-xs);        /* Small space above details */
-}
-#inventory-modal p { /* For the "Capacity: X/Y" text */
-    text-align: center;                   /* Center text */
-    margin-top: var(--spacing-lg);        /* Space above text */
-    font-weight: bold;                    /* Bold font */
-    color: var(--color-grey-mid);         /* Medium grey color */
+    background-color: var(--color-mid-dark);
+    padding: var(--spacing-xl);
+    border-radius: var(--modal-border-radius);
+    width: 90%;
+    max-width: var(--modal-max-width);
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Utility Classes
-|--------------------------------------------------------------------------
-|
-| General-purpose classes for common UI tasks.
-|
-*/
+/* Utility Classes */
 .hidden {
-    display: none !important; /* Force hide elements with this class, overriding other display properties */
+    display: none !important;
 }
 
-/* === END OF FILE === */
+/* Stats Display */
+.stats-container {
+    background-color: var(--color-overlay-dark-subtle);
+    padding: var(--spacing-lg);
+    border-radius: var(--modal-border-radius);
+    margin: var(--spacing-lg) 0;
+}
+
+/* Tutorial Elements */
+.tutorial-content {
+    padding: var(--spacing-md);
+}
+
+.tutorial-step {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background-color: var(--color-overlay-dark-light);
+    border-radius: var(--modal-border-radius);
+}
+
+/* Responsive Design */
+@media (max-height: 600px) {
+    :root {
+        --phone-max-height: 300px;
+    }
+}
+
+@media (max-width: 380px) {
+    :root {
+        --viewport-max-width: 100%;
+        --viewport-border-radius: 0;
+    }
+}
