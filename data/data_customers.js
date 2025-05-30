@@ -124,8 +124,13 @@ const customerArchetypes = {
     REGULAR_JOE: {
         key: "REGULAR_JOE",
         baseName: "Chill Chad", // Friendlier, more laid-back
+        loyalty: 0, // Default loyalty
+        maxLoyalty: 5, // Max loyalty level
         greeting: (customer, item) => {
             let g = "";
+            if (customer.loyalty === customer.maxLoyalty && customerArchetypes.REGULAR_JOE.dialogueVariations.loyalGreeting) {
+                return customerArchetypes.REGULAR_JOE.dialogueVariations.loyalGreeting(customer.mood);
+            }
             const itemName = item ? item.name.split("'")[1] || item.name.split(" ")[1] || "the usual vibe" : 'something to unwind with';
             if (customer.mood === "paranoid") {
                 g += `(Lowering voice, glancing around) Yo Rikk, quick word. **Feel like the squirrels are judging me today, man. And that one dude is definitely not just 'walking his dog'.** Just need my usual ${itemName}, nothing too wild. Let's keep it low-pro, yeah? **My grandma thinks I'm a youth pastor.**`;
@@ -147,8 +152,32 @@ const customerArchetypes = {
         initialMood: "chill", // New mood
         preferredDrugSubTypes: ["CANNABINOID", "PARTY", "PSYCHEDELIC_MILD"], // Likes weed, party stuff, maybe light psychs
         dialogueVariations: {
+            loyaltyIncrease: "Good looking out, Rikk. You always treat me right.",
+            loyalGreeting: (mood) => { // Changed to a function to allow mood variations if desired later
+                // For now, a simple greeting, but could be expanded with mood
+                return "Rikk, my main man! Good to see you again!";
+            },
+            loyalOfferBetterPrice: (mood, itemType) => { // itemType could be "buy" or "sell" // mood is available if needed
+                if (itemType === "buy") { // This case is when Rikk is buying from Chad, Chad offers more money / Rikk pays less
+                    return "Since it's you, Rikk, I'll take $5 less for it."; // Chad reduces his asking price
+                }
+                // This case is when Rikk is selling to Chad, Chad offers to pay more
+                return "For you, Rikk, how about I throw in an extra $5 on this?"; // Chad offers more money
+            },
+            loyalBringFriend: "My boy's looking for a hookup too. Told him you're the guy. He might swing by.",
+            // Social Negotiation Dialogues for REGULAR_JOE
+            negotiationIntimidateSuccess: (mood) => "(Eyes wide) Whoa, okay, Rikk, chill! Your price is fine, man, fine!",
+            negotiationIntimidateFailAnger: (mood) => "Trying to strong-arm me, Rikk? Not cool. You know what? Forget this deal. I'm out.",
+            negotiationIntimidateFailStandFirm: (mood) => "Nah, Rikk, that ain't gonna work. My offer of X still stands if you want it, otherwise I'm good.",
+            negotiationCharmSuccess: (mood) => "Alright, Rikk, you smooth talker. For you, at that price? Deal.",
+            negotiationCharmFail: (mood) => "Heh, nice try, Rikk. Flattery won't change the numbers though. My original offer of X is still on the table if you're interested.",
+            // End Social Negotiation Dialogues
             negotiationSuccess: (mood) => {
                 if (mood === "paranoid") return "Aight, cool, cool. **But let's wrap this up, man, my aura feels... exposed. And I think that car alarm is Morse code for 'bust'.**";
+                }
+            },
+            negotiationFail: (mood) => {
+                if (mood === "paranoid") return "Nah, man, that's a bit steep. **And honestly, this whole block is giving me the heebie-jeebies right now. Think I saw a cop hiding in a trash can.**";
                 if (mood === "happy") return "Sweet! That's what I'm talking about! **You're a legend, Rikk! High five! Or, like, an air five, if you're not into the whole 'touching' thing.**";
                 return "Yeah, that's solid. **Good looking out.**";
             },
@@ -256,5 +285,28 @@ const customerArchetypes = {
                  displaySystemMessage(`You feel **${customerState.name}'s** beady eyes on you as they leave...`);
             }
         }
+    },
+    COMPETITOR_SCOUT: {
+        key: "COMPETITOR_SCOUT",
+        baseName: "Observant Oscar",
+        greeting: (customer, item) => { // item is not used but part of signature
+            return "(Eyes scanning everything) So, you're the Rikk everyone's whispering about. My employers are... curious about the new talent on their turf. What's your angle?";
+        },
+        buyPreference: () => false, // Does not buy
+        sellPreference: () => false, // Does not sell
+        priceToleranceFactor: 1.0, // Not applicable but set to neutral
+        negotiationResists: true, // Not applicable
+        heatImpact: 1, // Base heat for the encounter
+        credImpactSell: 0, // Not applicable
+        credImpactBuy: 0, // Not applicable
+        initialMood: "probing",
+        dialogueVariations: {
+            rikkDeclinesToShare: "Stone wall, huh? Bold. My employers value... cooperation. This lack of it will be noted.",
+            rikkSharesVague: "Keeping it close to the vest. Understandable. But vague answers don't make strong impressions.",
+            rikkSharesFalseInfo: "Is that so? Interesting. We have our ways of verifying things, you know.",
+            rikkSharesTrueInfo: "Direct. I can appreciate that. My employers will find this information... useful.",
+            askForInfoContinuation: "So, what kind of... merchandise are you specializing in? And how's business?"
+        },
+        postDealEffect: null, // No standard post-deal effect
     },
 };

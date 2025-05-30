@@ -226,41 +226,87 @@ function selectOrGenerateCustomerFromPool() {
     // Ensure customerArchetypes is defined
     if (typeof customerArchetypes === 'undefined' || Object.keys(customerArchetypes).length === 0) {
         console.error("customerArchetypes data is not loaded or empty!");
-        // Return a fallback customer or handle error
-        return { id: `customer_error_${nextCustomerId++}`, name: "Error Customer", archetypeKey: "ERROR_ARCHETYPE", loyaltyToRikk: 0, mood: "neutral", cashOnHand: 50, preferredDrugSubTypes: [], addictionLevel: {}, hasMetRikkBefore: false, lastInteractionWithRikk: null, patience: 3 };
+        return { id: `customer_error_${nextCustomerId++}`, name: "Error Customer", archetypeKey: "ERROR_ARCHETYPE", mood: "neutral", cashOnHand: 50, preferredDrugSubTypes: [], addictionLevel: {}, hasMetRikkBefore: false, lastInteractionWithRikk: null, patience: 3, loyalty: 0, maxLoyalty: 0 };
     }
 
-    // Try to pick a returning customer from the pool (e.g., 30% chance if pool has customers)
-    if (customersPool.length > 0 && Math.random() < 0.3) {
-        const returningCustomer = customersPool[Math.floor(Math.random() * customersPool.length)];
+    // Chance for Competitor Scout
+    const isNotFirstCustomer = fiendsLeft < MAX_FIENDS;
+    const lastCustomerWasScout = currentCustomer && currentCustomer.archetypeKey === "COMPETITOR_SCOUT";
+    let scoutChance = 0;
+    if (isNotFirstCustomer && !lastCustomerWasScout && customerArchetypes.COMPETITOR_SCOUT) {
+        scoutChance = fiendsLeft > 10 ? 0.15 : 0.10;
+    }
+
+    if (Math.random() < scoutChance) {
+        const scoutArchetypeData = customerArchetypes.COMPETITOR_SCOUT;
+        const scoutCustomer = {
+            id: `customer_${nextCustomerId++}`,
+            name: scoutArchetypeData.baseName,
+            archetypeKey: "COMPETITOR_SCOUT",
+            mood: scoutArchetypeData.initialMood || "probing",
+            cashOnHand: 0, // Not relevant
+            hasMetRikkBefore: customersPool.some(c => c.archetypeKey === "COMPETITOR_SCOUT"), // Has Rikk met *a* scout before?
+            lastInteractionWithRikk: null,
+            patience: 5, // Higher patience as they are observing
+            loyalty: 0, // Not applicable
+            maxLoyalty: 0, // Not applicable
+        };
+        // Add to pool so 'hasMetRikkBefore' can be true for future scouts, but scouts might not be typical "returning" customers.
+        if (customersPool.length < MAX_CUSTOMERS_IN_POOL) {
+            customersPool.push({...scoutCustomer, uniqueIdForPool: scoutCustomer.id }); // Ensure it's a copy if modifying later
+        } else {
+            customersPool[Math.floor(Math.random() * MAX_CUSTOMERS_IN_POOL)] = {...scoutCustomer, uniqueIdForPool: scoutCustomer.id};
+        }
+        console.log("Competitor's Scout generated:", scoutCustomer.name);
+        return scoutCustomer;
+    }
+
+    // Try to pick a returning customer from the pool (e.g., 30% chance if pool has customers and not a scout)
+    const nonScoutPool = customersPool.filter(c => c.archetypeKey !== "COMPETITOR_SCOUT");
+    if (nonScoutPool.length > 0 && Math.random() < 0.3) {
+        const returningCustomer = nonScoutPool[Math.floor(Math.random() * nonScoutPool.length)];
         returningCustomer.hasMetRikkBefore = true; // They are returning
         returningCustomer.cashOnHand = Math.floor(Math.random() * (customerArchetypes[returningCustomer.archetypeKey].priceToleranceFactor * 80)) + 20;
         if (Math.random() < 0.2) returningCustomer.mood = ["neutral", "antsy", "irritable"][Math.floor(Math.random()*3)];
 
-        console.log("Returning customer:", returningCustomer.name, "Mood:", returningCustomer.mood);
+        // Ensure loyalty for returning REGULAR_JOE
+        if (returningCustomer.archetypeKey === "REGULAR_JOE") {
+            if (returningCustomer.loyalty === undefined) {
+                returningCustomer.loyalty = customerArchetypes.REGULAR_JOE.loyalty !== undefined ? customerArchetypes.REGULAR_JOE.loyalty : 0;
+            }
+            if (returningCustomer.maxLoyalty === undefined) {
+                returningCustomer.maxLoyalty = customerArchetypes.REGULAR_JOE.maxLoyalty !== undefined ? customerArchetypes.REGULAR_JOE.maxLoyalty : 5;
+            }
+        }
+        console.log("Returning customer:", returningCustomer.name, "Mood:", returningCustomer.mood, "Loyalty:", returningCustomer.loyalty);
         return returningCustomer;
     }
 
-    // Generate a new customer
-    const archetypeKeys = Object.keys(customerArchetypes);
+    // Generate a new non-scout customer
+    let archetypeKeys = Object.keys(customerArchetypes).filter(key => key !== "COMPETITOR_SCOUT");
+    if (archetypeKeys.length === 0) { // Fallback if only scout exists, though unlikely
+        archetypeKeys = Object.keys(customerArchetypes);
+    }
     const selectedArchetypeKey = archetypeKeys[Math.floor(Math.random() * archetypeKeys.length)];
     const archetypeData = customerArchetypes[selectedArchetypeKey];
 
     let customerName = archetypeData.baseName;
-    if (archetypeData.baseName.includes("Fiend") || archetypeData.baseName.includes("Joe")) {
+    // Ensure nextCustomerId is used correctly if needed for naming, or remove if not.
+    // For REGULAR_JOE, the name is static "Chill Chad" as per its definition, so no need to append nextCustomerId.
+    if (archetypeData.key !== "REGULAR_JOE" && (archetypeData.baseName.includes("Fiend") || archetypeData.baseName.includes("Joe"))) { // Modified "Joe" to be more generic if other "Joe" types exist
         customerName += ` ${nextCustomerId}`;
-    } else if (archetypeData.baseName.includes("Informant")) {
+    } else if (archetypeData.baseName.includes("Informant")) { // This implies Informant might have varied names
         customerName = ["Whispers", "Eyes on Street", "The Rat", "Silent Tip"][Math.floor(Math.random()*4)];
-    } else if (archetypeData.baseName.includes("Roller")) {
+    } else if (archetypeData.baseName.includes("Roller")) { // This implies Roller might have varied names
         customerName = ["Mr. Big", "Ms. Lavish", "The Whale", "Gold Digger"][Math.floor(Math.random()*4)];
     }
-
+    // If it's REGULAR_JOE, customerName remains archetypeData.baseName ("Chill Chad")
 
     const newCustomer = {
-        id: `customer_${nextCustomerId++}`,
+        id: `customer_${nextCustomerId++}`, // Unique ID for tracking
         name: customerName,
         archetypeKey: selectedArchetypeKey,
-        loyaltyToRikk: 0,
+        // loyaltyToRikk: 0, // Old generic loyalty, will be replaced by specific archetype data
         mood: archetypeData.initialMood || "neutral",
         cashOnHand: Math.floor(Math.random() * (archetypeData.priceToleranceFactor * 100)) + 30, // Cash varies by tolerance
         preferredDrugSubTypes: archetypeData.preferredDrugSubTypes || [],
@@ -268,20 +314,41 @@ function selectOrGenerateCustomerFromPool() {
         hasMetRikkBefore: false,
         lastInteractionWithRikk: null,
         patience: 3 + Math.floor(Math.random()*3),
+        // Initialize loyalty for REGULAR_JOE specifically
+        loyalty: (selectedArchetypeKey === "REGULAR_JOE") ? (archetypeData.loyalty !== undefined ? archetypeData.loyalty : 0) : 0,
+        maxLoyalty: (selectedArchetypeKey === "REGULAR_JOE") ? (archetypeData.maxLoyalty !== undefined ? archetypeData.maxLoyalty : 5) : 0,
     };
+
+    // This block for returning customers was moved up and modified to exclude scouts initially.
+    // The following logic for adding new customers to the pool remains.
 
     if (customersPool.length < MAX_CUSTOMERS_IN_POOL) {
         customersPool.push(newCustomer);
     } else {
+        // If replacing, ensure the new customer also gets loyalty if it's REGULAR_JOE
+        // This part of the logic might need review if REGULAR_JOE is frequently replaced.
+        // For now, the newCustomer object already has loyalty initialized.
         customersPool[Math.floor(Math.random() * MAX_CUSTOMERS_IN_POOL)] = newCustomer;
     }
-    console.log("New customer generated:", newCustomer.name, "Archetype:", newCustomer.archetypeKey);
+    console.log("New customer generated:", newCustomer.name, "Archetype:", newCustomer.archetypeKey, "Loyalty:", newCustomer.loyalty);
     return newCustomer;
 }
 
 
 function generateCustomerInteractionData() {
-    const customerData = selectOrGenerateCustomerFromPool();
+    const customerData = selectOrGenerateCustomerFromPool(); // This now handles loyalty init for REGULAR_JOE
+
+    // Ensure loyalty and maxLoyalty are part of customerData if it's REGULAR_JOE
+    // This is more of a safeguard or for older save compat if not handled in selectOrGenerateCustomerFromPool fully
+    if (customerData.archetypeKey === "REGULAR_JOE") {
+        if (customerData.loyalty === undefined) {
+            customerData.loyalty = customerArchetypes.REGULAR_JOE.loyalty !== undefined ? customerArchetypes.REGULAR_JOE.loyalty : 0;
+        }
+        if (customerData.maxLoyalty === undefined) {
+            customerData.maxLoyalty = customerArchetypes.REGULAR_JOE.maxLoyalty !== undefined ? customerArchetypes.REGULAR_JOE.maxLoyalty : 5;
+        }
+    }
+
     if (typeof customerArchetypes === 'undefined' || !customerArchetypes[customerData.archetypeKey]) {
         console.error("customerArchetypes not loaded or archetypeKey invalid:", customerData.archetypeKey);
         currentCustomer = {
@@ -297,32 +364,59 @@ function generateCustomerInteractionData() {
     let dialogue = [];
     let choices = [];
     let itemContext = null;
-    let greetingText = archetype.greeting(customerData, null); // Initial greeting
-    dialogue.push({ speaker: "customer", text: greetingText });
 
-    // --- REVISED LOGIC FOR DECIDING IF CUSTOMER SELLS TO RIKK ---
-    let customerWillOfferItemToRikk = false;
-    if (archetype.sellsOnly) {
-        customerWillOfferItemToRikk = true;
+    // Handle COMPETITOR_SCOUT interaction setup
+    if (customerData.archetypeKey === "COMPETITOR_SCOUT") {
+        dialogue.push({ speaker: "customer", text: archetype.greeting(customerData, null) });
+        dialogue.push({ speaker: "rikk", text: "(This dude ain't here to shop... gotta play this smart.) 'Depends who's asking. What's your interest?'" });
+        dialogue.push({ speaker: "customer", text: archetype.dialogueVariations.askForInfoContinuation });
+
+        choices.push({ text: "Play Dumb: 'Just hustlin'.'", outcome: { type: "scout_interaction", choice_type: "decline" } });
+        choices.push({ text: "Vague: 'Good stuff, fair prices.'", outcome: { type: "scout_interaction", choice_type: "vague" } });
+        choices.push({ text: "Mislead: 'Tell 'em I'm king of Blue Magic.'", outcome: { type: "scout_interaction", choice_type: "false_info" } }); // Corrected example
+        choices.push({ text: "Be Real: 'Moving Green Crack, used phones.'", outcome: { type: "scout_interaction", choice_type: "true_info" } }); // Corrected example
+        itemContext = null;
     } else {
-        let baseChanceToOfferItem = 0.30;
+        // Existing logic for other customer types
+        let greetingText = archetype.greeting(customerData, null); // Initial greeting
+        dialogue.push({ speaker: "customer", text: greetingText });
+
+        let customerWillOfferItemToRikk = false;
+        if (archetype.sellsOnly) {
+            customerWillOfferItemToRikk = true;
+        } else if (archetype.buyPreference && !archetype.sellPreference) { // Archetype only buys, never sells to Rikk (e.g. Snitch)
+             customerWillOfferItemToRikk = false;
+        } else if (archetype.sellPreference && !archetype.buyPreference) { // Archetype only sells (e.g. Informant already handled by sellsOnly)
+            customerWillOfferItemToRikk = true;
+        }
+        else {
+            let baseChanceToOfferItem = 0.30;
         if (inventory.length === 0) { baseChanceToOfferItem = 0.75; }
         else if (inventory.length < 2) { baseChanceToOfferItem = 0.60; }
         else if (inventory.length < 4) { baseChanceToOfferItem = 0.40; }
         else if (inventory.length >= MAX_INVENTORY_SLOTS - 2) { baseChanceToOfferItem = 0.10; }
 
-        if (Math.random() < baseChanceToOfferItem) {
-            customerWillOfferItemToRikk = true;
-        } else if (customerData.cashOnHand < 25 && Math.random() < 0.5) {
-            customerWillOfferItemToRikk = true;
-        }
-    }
-    // --- END OF REVISED LOGIC ---
+            if (inventory.length === 0) { baseChanceToOfferItem = 0.75; }
+            else if (inventory.length < 2) { baseChanceToOfferItem = 0.60; }
+            else if (inventory.length < 4) { baseChanceToOfferItem = 0.40; }
+            else if (inventory.length >= MAX_INVENTORY_SLOTS - 2) { baseChanceToOfferItem = 0.10; }
 
-    if (customerWillOfferItemToRikk && inventory.length < MAX_INVENTORY_SLOTS) { // Customer offers to sell to Rikk
-        itemContext = generateRandomItem(archetype);
-        if (!archetype.sellsOnly && itemContext.qualityIndex > 1 && Math.random() < 0.6) {
-            itemContext.qualityIndex = Math.max(0, itemContext.qualityIndex - 1);
+            if (Math.random() < baseChanceToOfferItem) {
+                customerWillOfferItemToRikk = true;
+            } else if (customerData.cashOnHand < 25 && Math.random() < 0.5) {
+                customerWillOfferItemToRikk = true;
+            }
+        }
+
+        if (customerWillOfferItemToRikk && inventory.length < MAX_INVENTORY_SLOTS && archetype.sellPreference && archetype.sellPreference(generateRandomItem(archetype))) { // Customer offers to sell to Rikk
+            itemContext = generateRandomItem(archetype);
+            // Ensure the generated item matches sell preference if specified, otherwise, it might be an item they wouldn't sell.
+            // This check is a bit late, ideally, generateRandomItem should be more context-aware for sellers.
+            // For now, if it doesn't match, we can fallback to them wanting to buy, or end interaction.
+            // Simplified: assume generateRandomItem for a selling customer is something they'd sell.
+
+            if (!archetype.sellsOnly && itemContext.qualityIndex > 1 && Math.random() < 0.6) { // e.g. REGULAR_JOE might try to offload slightly worse stuff
+                itemContext.qualityIndex = Math.max(0, itemContext.qualityIndex - 1);
             const qualityLevelsForType = (typeof ITEM_QUALITY_LEVELS !== 'undefined' && ITEM_QUALITY_LEVELS[itemContext.itemTypeObj.type]) ? ITEM_QUALITY_LEVELS[itemContext.itemTypeObj.type] : ["Standard"];
             itemContext.quality = qualityLevelsForType[itemContext.qualityIndex];
         }
@@ -346,25 +440,29 @@ function generateCustomerInteractionData() {
                 offerText = `Yo Rikk, check it. Got this ${itemContext.quality} ${itemNameForDialogue}. Solid piece. How's $${customerDemandsPrice} sound? **It's a steal, man, practically fell into my lap... from a very tall truck.**`;
         }
         dialogue.push({ speaker: "customer", text: offerText });
-        dialogue.push({ speaker: "rikk", text: `Word? A ${itemContext.quality} ${itemNameForDialogue} for $${customerDemandsPrice}, you say? **The streets are talkin', let's see if this piece sings the right tune.** Let me peep it...` });
-        // --- END OF ENHANCED DIALOGUE ---
+            dialogue.push({ speaker: "rikk", text: `Word? A ${itemContext.quality} ${itemNameForDialogue} for $${customerDemandsPrice}, you say? **The streets are talkin', let's see if this piece sings the right tune.** Let me peep it...` });
 
-        if (cash >= customerDemandsPrice) {
-            choices.push({ text: `Cop it ($${customerDemandsPrice})`, outcome: { type: "buy_from_customer", item: itemContext, price: customerDemandsPrice } });
-        } else {
-            if (archetype.dialogueVariations?.lowCashRikk) {
-                dialogue.push({ speaker: "rikk", text: archetype.dialogueVariations.lowCashRikk(customerData.mood) || `(Sighs) $${customerDemandsPrice} is a bit rich for my blood right now, fam.` });
+            if (cash >= customerDemandsPrice) {
+                choices.push({ text: `Cop it ($${customerDemandsPrice})`, outcome: { type: "buy_from_customer", item: itemContext, price: customerDemandsPrice } });
             } else {
-                dialogue.push({ speaker: "rikk", text: `(Sighs) $${customerDemandsPrice} is a bit rich for my blood right now, fam.` });
+                if (archetype.dialogueVariations?.lowCashRikk) {
+                    dialogue.push({ speaker: "rikk", text: archetype.dialogueVariations.lowCashRikk(customerData.mood) || `(Sighs) $${customerDemandsPrice} is a bit rich for my blood right now, fam.` });
+                } else {
+                    dialogue.push({ speaker: "rikk", text: `(Sighs) $${customerDemandsPrice} is a bit rich for my blood right now, fam.` });
+                }
+                choices.push({ text: `Cop it (Need $${customerDemandsPrice - cash} more)`, outcome: { type: "buy_from_customer", item: itemContext, price: customerDemandsPrice }, disabled: true });
             }
-            choices.push({ text: `Cop it (Need $${customerDemandsPrice - cash} more)`, outcome: { type: "buy_from_customer", item: itemContext, price: customerDemandsPrice }, disabled: true });
-        }
-        choices.push({ text: "Nah, I'm straight on that.", outcome: { type: "decline_offer_to_buy", item: itemContext } });
+            choices.push({ text: "Nah, I'm straight on that.", outcome: { type: "decline_offer_to_buy", item: itemContext } });
 
-    } else if (inventory.length > 0) { // Customer wants to buy from Rikk (and Rikk has items)
-        let potentialItemsToSell = inventory.filter(invItem => archetype.buyPreference ? archetype.buyPreference(invItem) : true);
-        if (customerData.preferredDrugSubTypes && customerData.preferredDrugSubTypes.length > 0 && Math.random() < 0.7) {
-            const preferredItems = potentialItemsToSell.filter(invItem =>
+        } else if (inventory.length > 0 && archetype.buyPreference && archetype.buyPreference(inventory[0])) { // Customer wants to buy from Rikk (and Rikk has items they might want)
+            // Simplified item selection for brevity; ideally, filter inventory by buyPreference.
+            let potentialItemsToSell = inventory.filter(invItem => archetype.buyPreference(invItem));
+            if (potentialItemsToSell.length === 0) { // Fallback if no preferred items, offer anything (or handle differently)
+                 potentialItemsToSell = inventory;
+            }
+
+            if (customerData.preferredDrugSubTypes && customerData.preferredDrugSubTypes.length > 0 && Math.random() < 0.7) {
+                const preferredItems = potentialItemsToSell.filter(invItem =>
                 invItem.itemTypeObj.type === "DRUG" && customerData.preferredDrugSubTypes.includes(invItem.itemTypeObj.subType)
             );
             if (preferredItems.length > 0) potentialItemsToSell = preferredItems;
@@ -374,15 +472,18 @@ function generateCustomerInteractionData() {
         itemContext = potentialItemsToSell[Math.floor(Math.random() * potentialItemsToSell.length)];
 
         // Update initial greeting if it was generic
-        const firstDialogueText = dialogue[0].text.toLowerCase();
-        const needsGreetingUpdate = (
-            (archetype.key === "DESPERATE_FIEND" && (firstDialogueText.includes('fix') || firstDialogueText.includes('quiet the demons'))) ||
-            (archetype.key === "HIGH_ROLLER" && (firstDialogueText.includes('product') || firstDialogueText.includes('exquisite diversions'))) ||
-            (archetype.key === "REGULAR_JOE" && (firstDialogueText.includes('something decent') || firstDialogueText.includes('unwind with'))) ||
-            (archetype.key === "SNITCH" && (firstDialogueText.includes('noteworthy') || firstDialogueText.includes('exciting'))) // Snitch might also have generic opener
-        );
-        if (dialogue.length === 1 && needsGreetingUpdate) {
-            dialogue[0].text = archetype.greeting(customerData, itemContext);
+        // Ensure archetype and customerData are available for greeting
+        if (archetype && customerData && dialogue.length > 0 && dialogue[0].text) {
+            const firstDialogueText = dialogue[0].text.toLowerCase();
+            const needsGreetingUpdate = (
+                (archetype.key === "DESPERATE_FIEND" && (firstDialogueText.includes('fix') || firstDialogueText.includes('quiet the demons'))) ||
+                (archetype.key === "HIGH_ROLLER" && (firstDialogueText.includes('product') || firstDialogueText.includes('exquisite diversions'))) ||
+                (archetype.key === "REGULAR_JOE" && (firstDialogueText.includes('something decent') || firstDialogueText.includes('unwind with') || firstDialogueText.includes('the usual vibe'))) || // Added generic check
+                (archetype.key === "SNITCH" && (firstDialogueText.includes('noteworthy') || firstDialogueText.includes('exciting')))
+            );
+            if (dialogue.length === 1 && needsGreetingUpdate) {
+                dialogue[0].text = archetype.greeting(customerData, itemContext);
+            }
         }
 
         const rikkBaseSellPrice = calculateItemEffectiveValue(itemContext, false, null);
@@ -408,24 +509,31 @@ function generateCustomerInteractionData() {
                 askText = `So, Rikk, about that ${itemContext.quality} ${itemNameForDialogue}... Word is you got the hookup. I'm thinking $${customerOfferPrice} is fair, right? **Let's make a deal before my existential dread kicks in.**`;
         }
         dialogue.push({ speaker: "customer", text: askText });
-        dialogue.push({ speaker: "rikk", text: `This ${itemContext.quality} ${itemNameForDialogue} you speak of? **The one that whispers sweet nothings to the fiends and promises of grandeur to the ballers?** Street value is $${rikkBaseSellPrice}. You're offering $${customerOfferPrice}, huh? **Interesting proposal...**` });
-        // --- END OF ENHANCED DIALOGUE ---
+            dialogue.push({ speaker: "rikk", text: `This ${itemContext.quality} ${itemNameForDialogue} you speak of? **The one that whispers sweet nothings to the fiends and promises of grandeur to the ballers?** Street value is $${rikkBaseSellPrice}. You're offering $${customerOfferPrice}, huh? **Interesting proposal...**` });
 
-        if (customerData.cashOnHand >= customerOfferPrice) {
-            choices.push({ text: `Serve 'em ($${customerOfferPrice})`, outcome: { type: "sell_to_customer", item: itemContext, price: customerOfferPrice } });
-        } else {
-            choices.push({ text: `Serve 'em ($${customerOfferPrice}) (They Broke!)`, outcome: { type: "sell_to_customer", item: itemContext, price: customerOfferPrice }, disabled: true });
-        }
+            if (customerData.cashOnHand >= customerOfferPrice) {
+                choices.push({ text: `Serve 'em ($${customerOfferPrice})`, outcome: { type: "sell_to_customer", item: itemContext, price: customerOfferPrice } });
+            } else {
+                choices.push({ text: `Serve 'em ($${customerOfferPrice}) (They Broke!)`, outcome: { type: "sell_to_customer", item: itemContext, price: customerOfferPrice }, disabled: true });
+            }
 
-        if (!archetype.negotiationResists && rikkBaseSellPrice > customerOfferPrice + 10 && customerData.cashOnHand >= Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9)) {
-            const hagglePrice = Math.min(customerData.cashOnHand, Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9));
-            choices.push({ text: `Haggle (Aim $${hagglePrice})`, outcome: { type: "negotiate_sell", item: itemContext, proposedPrice: hagglePrice, originalOffer: customerOfferPrice } });
-        }
-        choices.push({ text: "Kick rocks, chump.", outcome: { type: "decline_offer_to_sell", item: itemContext } });
+            // Standard price negotiation
+            if (!archetype.negotiationResists && rikkBaseSellPrice > customerOfferPrice + 10 && customerData.cashOnHand >= Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9)) {
+                const hagglePrice = Math.min(customerData.cashOnHand, Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9)); // Corrected divisor
+                choices.push({ text: `Haggle (Aim $${hagglePrice})`, outcome: { type: "negotiate_sell", item: itemContext, proposedPrice: hagglePrice, originalOffer: customerOfferPrice } });
+            }
 
-    } else { // Rikk has nothing, and customer didn't offer to sell.
-        // --- ENHANCED DIALOGUE: Rikk's Empty Stash ---
-        let emptyStashText = "";
+            // Social negotiation choices for REGULAR_JOE
+            if (customerData.archetypeKey === "REGULAR_JOE" && rikkBaseSellPrice > customerOfferPrice &&
+                customerData.mood !== "angry" && customerData.mood !== "annoyed") {
+                choices.push({ text: `Intimidate (Aim $${rikkBaseSellPrice})`, outcome: { type: "negotiate_social", style: "intimidate", item: itemContext, rikkTargetPrice: rikkBaseSellPrice, customerInitialOffer: customerOfferPrice } });
+                choices.push({ text: `Charm (Aim $${rikkBaseSellPrice})`, outcome: { type: "negotiate_social", style: "charm", item: itemContext, rikkTargetPrice: rikkBaseSellPrice, customerInitialOffer: customerOfferPrice } });
+            }
+
+            choices.push({ text: "Kick rocks, chump.", outcome: { type: "decline_offer_to_sell", item: itemContext } });
+
+        } else { // Rikk has nothing they want/can buy, or customer didn't offer anything Rikk wants/can buy.
+            let emptyStashText = "";
         switch(customerData.mood) {
             case "paranoid":
                 emptyStashText = `(Shakes head slowly) Damn, fam. The well is dry. **Not a crumb, not a speck. Even my dust bunnies are on strike.** Can't help ya. **Maybe try... meditation? Or screaming into a pillow?**`;
@@ -436,28 +544,27 @@ function generateCustomerInteractionData() {
             default:
                 emptyStashText = `Whoa there, eager beaver! Stash is lookin' like a ghost town right now. **Bare as a baby's bottom.** Gotta re-up before I can serve. **Patience, young grasshopper.**`;
         }
-        // Update Rikk's line if the initial greeting was already pushed
-        if (dialogue.length > 0 && dialogue[dialogue.length -1].speaker === "customer") {
-            dialogue.push({ speaker: "rikk", text: emptyStashText });
-        } else if (dialogue.length > 0 && dialogue[dialogue.length -1].speaker === "rikk") {
-             // This case should be rare if greeting logic is correct, but as a fallback:
-            dialogue[dialogue.length -1].text = emptyStashText; // Overwrite Rikk's previous line
-        } else { // Should not happen if greeting always pushes first
-            dialogue.push({ speaker: "rikk", text: emptyStashText });
+            if (dialogue.length > 0 && dialogue[dialogue.length -1].speaker === "customer") {
+                dialogue.push({ speaker: "rikk", text: emptyStashText });
+            } else if (dialogue.length > 0 && dialogue[dialogue.length -1].speaker === "rikk") {
+                dialogue[dialogue.length -1].text = emptyStashText;
+            } else {
+                dialogue.push({ speaker: "rikk", text: emptyStashText });
+            }
+            choices.push({ text: "Aight, peace. Hit me up.", outcome: { type: "acknowledge_empty_stash" } });
         }
-
-        choices.push({ text: "Aight, peace. Hit me up.", outcome: { type: "acknowledge_empty_stash" } });
-        // --- END OF ENHANCED DIALOGUE ---
-    }
+    } // End of non-scout interaction setup
 
     currentCustomer = {
-        data: customerData,
+            data: customerData, // This now includes loyalty/maxLoyalty for REGULAR_JOE
         name: customerData.name,
         dialogue,
         choices,
         itemContext,
         archetypeKey: customerData.archetypeKey,
-        mood: customerData.mood
+        mood: customerData.mood,
+            // Note: currentCustomer.data will be the reference to customerData from the pool or new
+        interactionConcluded: false // Initialize for fiendsLeft tracking
     };
 }
 
@@ -501,9 +608,15 @@ function handleChoice(outcome) {
         return; 
     }
     const archetype = customerArchetypes[currentCustomer.archetypeKey]; // Safe now due to check above
-    const customerState = currentCustomer.data; 
+    const customerState = currentCustomer.data; // This is the direct reference to the customer object from the pool or the new one.
 
-    let dealSuccess = false; 
+    let dealSuccess = false;
+    let additionalDialogue = []; // For loyalty messages
+
+    // Add this to handle extra cred/heat from social negotiation outcomes
+    if (typeof outcome.extraCred !== 'undefined') streetCred += outcome.extraCred;
+    if (typeof outcome.extraHeat !== 'undefined') heat += outcome.extraHeat;
+
 
     switch (outcome.type) {
         case "buy_from_customer": 
@@ -512,15 +625,18 @@ function handleChoice(outcome) {
                 const newItem = {...outcome.item}; inventory.push(newItem); 
                 heatChange = newItem.itemTypeObj.heat + (archetype.heatImpact || 0);
                 credChange = archetype.credImpactBuy || 0; 
-                customerState.mood = "pleased"; customerState.loyaltyToRikk += 1; dealSuccess = true;
+                customerState.mood = "pleased";
+                // customerState.loyaltyToRikk += 1; // Old generic loyalty
+                dealSuccess = true;
                 narrationText = `Scored! Copped "${newItem.name} (${newItem.quality})" for $${outcome.price}.`;
-                customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkBuysSuccess || "Good doin' business."}"`;
+                // customerReaction set later if loyalty applies
                 playSound(cashSound);
                 if (newItem.effect === "reduce_heat_small") { heat = Math.max(0, heat - 10); narrationText += " That intel should cool things down."; }
                 customerState.lastInteractionWithRikk = { type: "rikk_bought", item: newItem.name, outcome: "success" };
             } else if (inventory.length >= MAX_INVENTORY_SLOTS) {
                 narrationText = `Stash full, fam! No room.`; customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.stashFull || "Aight then."}"`; playSound(deniedSound);
-                customerState.mood = "annoyed"; customerState.loyaltyToRikk -=1;
+                customerState.mood = "annoyed";
+                // customerState.loyaltyToRikk -=1; // Old generic loyalty
                 customerState.lastInteractionWithRikk = { type: "rikk_declined_buy", reason: "stash_full" };
             } else { 
                 narrationText = `Not enough cash for that.`; customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkCannotAfford || "Damn, Rikk."}"`; playSound(deniedSound);
@@ -536,7 +652,9 @@ function handleChoice(outcome) {
                 cash += outcome.price;
                 heatChange = itemSold.itemTypeObj.heat + (archetype.heatImpact || 0);
                 credChange = archetype.credImpactSell || 0; 
-                customerState.mood = "happy"; customerState.loyaltyToRikk += 2; dealSuccess = true;
+                customerState.mood = "happy";
+                // customerState.loyaltyToRikk += 2; // Old generic loyalty
+                dealSuccess = true;
 
                 if (itemSold.itemTypeObj.type === "DRUG" && itemSold.itemTypeObj.addictionChance > 0) {
                     const subType = itemSold.itemTypeObj.subType;
@@ -574,7 +692,27 @@ function handleChoice(outcome) {
                         cash += finalPrice;
                         negHeat = itemSold.itemTypeObj.heat + (negotiateArchetype.heatImpact || 0) + 1; 
                         negCred = (negotiateArchetype.credImpactSell || 0) + 1; 
-                        customerState.mood = "impressed"; customerState.loyaltyToRikk +=1; dealSuccess = true;
+                        customerState.mood = "impressed";
+                        // customerState.loyaltyToRikk +=1; // Old generic loyalty
+                        dealSuccess = true;
+                        // Loyalty for REGULAR_JOE on successful negotiation
+                        if (currentCustomer.archetypeKey === "REGULAR_JOE" && dealSuccess) {
+                            if (customerState.loyalty < customerState.maxLoyalty) {
+                                customerState.loyalty++;
+                                additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyaltyIncrease });
+                                if (customerState.loyalty === 3) {
+                                    additionalDialogue.push({ speaker: "narration", text: "Chill Chad seems to trust you more. Might offer better deals." });
+                                    // Price adjustment already handled by this negotiation, future deals will reflect.
+                                }
+                                if (customerState.loyalty === customerState.maxLoyalty) {
+                                    additionalDialogue.push({ speaker: "narration", text: "Chill Chad is a loyal connect! He's gonna send some business your way." });
+                                    additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyalBringFriend });
+                                    const referralBonus = Math.floor(Math.random() * 31) + 20; // $20-$50
+                                    cash += referralBonus;
+                                    additionalDialogue.push({ speaker: "narration", text: `Rikk got a $${referralBonus} kickback from Chad's referral!` });
+                                }
+                            }
+                        }
                          if (itemSold.itemTypeObj.type === "DRUG" && itemSold.itemTypeObj.addictionChance > 0) {
                             const subType = itemSold.itemTypeObj.subType;
                             customerState.addictionLevel[subType] = (customerState.addictionLevel[subType] || 0) + itemSold.itemTypeObj.addictionChance;
@@ -586,18 +724,27 @@ function handleChoice(outcome) {
                     }
                 } else { 
                     negHeat = 1; negCred = -1; 
-                    customerState.mood = "angry"; customerState.loyaltyToRikk -=2;
+                    customerState.mood = "angry";
+                    // customerState.loyaltyToRikk -=2; // Old generic loyalty
                     displayPhoneMessage(`They ain't budging. "${negotiateArchetype.dialogueVariations?.negotiationFail || `Take $${outcome.originalOffer} or I walk,`}" they say.`, 'narration');
                     choicesArea.innerHTML = '';
-                    const acceptOriginalBtn = document.createElement('button'); acceptOriginalBtn.textContent = `Aight, fine. ($${outcome.originalOffer})`; acceptOriginalBtn.classList.add('choice-button'); acceptOriginalBtn.addEventListener('click', () => handleChoice({ type: "sell_to_customer", item: outcome.item, price: outcome.originalOffer })); choicesArea.appendChild(acceptOriginalBtn);
-                    const declineFullyBtn = document.createElement('button'); declineFullyBtn.textContent = `Nah, deal's off.`; declineFullyBtn.classList.add('choice-button', 'decline'); declineFullyBtn.addEventListener('click', () => handleChoice({ type: "decline_offer_to_sell", item: outcome.item })); choicesArea.appendChild(declineFullyBtn);
+                    const acceptOriginalBtn = document.createElement('button'); acceptOriginalBtn.textContent = `Aight, fine. ($${outcome.originalOffer})`; acceptOriginalBtn.classList.add('choice-button');
+                    acceptOriginalBtn.addEventListener('click', () => handleChoice({ type: "sell_to_customer", item: outcome.item, price: outcome.originalOffer, isSocialContinuation: true })); // Indicate continuation
+                    choicesArea.appendChild(acceptOriginalBtn);
+                    const declineFullyBtn = document.createElement('button'); declineFullyBtn.textContent = `Nah, deal's off.`; declineFullyBtn.classList.add('choice-button', 'decline');
+                    declineFullyBtn.addEventListener('click', () => handleChoice({ type: "decline_offer_to_sell", item: outcome.item, isSocialContinuation: true })); // Indicate continuation
+                    choicesArea.appendChild(declineFullyBtn);
                     customerState.lastInteractionWithRikk = { type: "rikk_negotiation_failed" };
+                    // Do not decrement fiendsLeft here, endCustomerInteraction will handle it if we don't proceed to another handleChoice
+                    updateHUD(); // Update HUD for immediate feedback on cred/heat changes from failed negotiation attempt
+                    saveGameState(); // Save state after displaying choices
                     return; 
                 }
+                // On successful price negotiation, heat/cred are updated. fiendsLeft is handled by endCustomerInteraction.
                 heat += negHeat; streetCred += negCred;
-                fiendsLeft--; 
+                // fiendsLeft--; // Removed: endCustomerInteraction will handle this.
                 updateHUD(); updateInventoryDisplay();
-                setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5);
+                setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5); // This will eventually call endCustomerInteraction
             }, 1500);
             return; 
 
@@ -605,7 +752,8 @@ function handleChoice(outcome) {
             narrationText = "Rikk ain't interested. Told 'em to bounce.";
             customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkDeclinesToBuy || "Your loss, chief."}"`;
             credChange = -1; 
-            customerState.mood = "annoyed"; customerState.loyaltyToRikk -=1;
+            customerState.mood = "annoyed";
+            // customerState.loyaltyToRikk -=1; // Old generic loyalty
             playSound(deniedSound);
             customerState.lastInteractionWithRikk = { type: "rikk_declined_buy", item: outcome.item.name };
             break;
@@ -615,7 +763,8 @@ function handleChoice(outcome) {
             customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkDeclinesToSell || "Cheap ass..."}"`;
             heatChange = 1; 
             credChange = archetype.key === "DESPERATE_FIEND" ? -2 : (archetype.key === "HIGH_ROLLER" ? 1 : 0); 
-            customerState.mood = "angry"; customerState.loyaltyToRikk -=2;
+            customerState.mood = "angry";
+            // customerState.loyaltyToRikk -=2; // Old generic loyalty
             playSound(deniedSound);
             customerState.lastInteractionWithRikk = { type: "rikk_declined_sell", item: outcome.item.name };
             break;
@@ -628,9 +777,117 @@ function handleChoice(outcome) {
             playSound(deniedSound);
             customerState.lastInteractionWithRikk = { type: "rikk_empty_stash" };
             break;
-        case "acknowledge_error": // Handle the error acknowledgement
+        case "acknowledge_error":
              narrationText = "System error acknowledged. Moving on...";
+            break;
+        case "negotiate_social":
+            // archetype and customerState are already defined at the top of handleChoice
+            clearChoices(); // Clear previous choices like "Serve 'em", "Haggle", etc.
+
+            if (outcome.style === "intimidate") {
+                displayPhoneMessage("Rikk puffs his chest, trying to look menacing...", 'rikk');
+                let successChance = 0.35 + (streetCred > 10 ? 0.1 : 0) - (streetCred < 0 ? 0.1 : 0);
+                playSound(deniedSound); // Re-using denied sound for intimidation attempt
+
+                setTimeout(() => {
+                    if (Math.random() < successChance) { // Success
+                        displayPhoneMessage("And it works! " + archetype.baseName + " looks spooked.", 'narration');
+                        displayPhoneMessage(archetype.dialogueVariations.negotiationIntimidateSuccess(customerState.mood), 'customer');
+                        // Proceed to sell at Rikk's target price
+                        handleChoice({ type: "sell_to_customer", item: outcome.item, price: outcome.rikkTargetPrice, isSocialContinuation: true, extraCred: 1, extraHeat: 1 });
+                    } else { // Failure
+                        if (Math.random() < 0.25) { // Customer gets angry and leaves
+                            displayPhoneMessage("...but " + archetype.baseName + " ain't having it and storms off!", 'narration');
+                            displayPhoneMessage(archetype.dialogueVariations.negotiationIntimidateFailAnger(customerState.mood), 'customer');
+                            heat += 2;
+                            streetCred -= 2;
+                            if (customerState.archetypeKey === "REGULAR_JOE" && customerState.loyalty !== undefined) {
+                                customerState.loyalty = Math.max(0, customerState.loyalty - 2); // Lose loyalty
+                            }
+                            customerState.mood = "angry";
+                            updateHUD();
+                            setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5); // Interaction ends
+                        } else { // Customer stands firm, offers original price
+                            displayPhoneMessage("...but " + archetype.baseName + " stands firm. He restates his offer.", 'narration');
+                            displayPhoneMessage(archetype.dialogueVariations.negotiationIntimidateFailStandFirm(customerState.mood).replace('X', '$' + outcome.customerInitialOffer), 'customer');
+                            streetCred -= 1;
+                            customerState.mood = "annoyed";
+                            // Present choices to accept original offer or decline fully
+                            displayChoices([
+                                { text: `OK, take it for $${outcome.customerInitialOffer}`, outcome: { type: "sell_to_customer", item: outcome.item, price: outcome.customerInitialOffer, isSocialContinuation: true } },
+                                { text: "Nah, deal's off then.", outcome: { type: "decline_offer_to_sell", item: outcome.item, isSocialContinuation: true } }
+                            ]);
+                        }
+                    }
+                    updateHUD(); // Update HUD for immediate changes if any
+                    saveGameState(); // Save state as choices might be presented or interaction ended
+                }, CUSTOMER_WAIT_TIME);
+                return; // Stop further processing in handleChoice for this turn
+            } else if (outcome.style === "charm") {
+                displayPhoneMessage("Rikk turns on the charm...", 'rikk');
+                let successChance = 0.30 + (streetCred > 5 ? 0.1 : 0);
+                // playSound(someCharmSound); // Optional: Add a charm sound effect
+
+                setTimeout(() => {
+                    if (Math.random() < successChance) { // Success
+                        displayPhoneMessage("And it seems to work!", 'narration');
+                        displayPhoneMessage(archetype.dialogueVariations.negotiationCharmSuccess(customerState.mood), 'customer');
+                        // Proceed to sell at Rikk's target price
+                        handleChoice({ type: "sell_to_customer", item: outcome.item, price: outcome.rikkTargetPrice, isSocialContinuation: true, extraCred: 1, extraHeat: 0 });
+                    } else { // Failure
+                        displayPhoneMessage("...but " + archetype.baseName + " isn't falling for it. He restates his offer.", 'narration');
+                        displayPhoneMessage(archetype.dialogueVariations.negotiationCharmFail(customerState.mood).replace('X', '$' + outcome.customerInitialOffer), 'customer');
+                        customerState.mood = "neutral"; // Or slightly amused
+                        // Present choices to accept original offer or decline fully
+                        displayChoices([
+                            { text: `Alright, your price: $${outcome.customerInitialOffer}`, outcome: { type: "sell_to_customer", item: outcome.item, price: outcome.customerInitialOffer, isSocialContinuation: true } },
+                            { text: "Nah, forget it.", outcome: { type: "decline_offer_to_sell", item: outcome.item, isSocialContinuation: true } }
+                        ]);
+                    }
+                    updateHUD(); // Update HUD for immediate changes if any
+                    saveGameState(); // Save state as choices might be presented or interaction ended
+                }, CUSTOMER_WAIT_TIME);
+                return; // Stop further processing in handleChoice for this turn
+            }
              break;
+        case "scout_interaction":
+            switch (outcome.choice_type) {
+                case "decline":
+                    narrationText = "Rikk stonewalls the scout.";
+                    customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations.rikkDeclinesToShare}"`;
+                    heatChange = (archetype.heatImpact || 0) + 2;
+                    credChange = -1;
+                    break;
+                case "vague":
+                    narrationText = "Rikk keeps his answers vague.";
+                    customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations.rikkSharesVague}"`;
+                    heatChange = (archetype.heatImpact || 0) + 1;
+                    credChange = 0;
+                    break;
+                case "false_info":
+                    narrationText = "Rikk tries to feed the scout false information.";
+                    customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations.rikkSharesFalseInfo}"`;
+                    if (Math.random() < 0.4) { // Success
+                        narrationText += " He seems to buy it. Might throw your rivals off!";
+                        heatChange = (archetype.heatImpact || 0) -1; // Reduced heat for successful deception
+                        credChange = 2;
+                    } else { // Failure
+                        narrationText += " He doesn't look convinced. This could backfire.";
+                        heatChange = (archetype.heatImpact || 0) + 3;
+                        credChange = -2;
+                    }
+                    break;
+                case "true_info":
+                    narrationText = "Rikk shares some real details about his operation.";
+                    customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations.rikkSharesTrueInfo}"`;
+                    heatChange = (archetype.heatImpact || 0) + 1;
+                    credChange = -3; // Sharing info is risky
+                    // Future: playerData.rivalKnowledge += 1;
+                    break;
+            }
+            // Common for all scout interactions
+            customerState.lastInteractionWithRikk = { type: "scout_probed", choice: outcome.choice_type };
+            break;
         default:
             console.error("Unhandled outcome type in handleChoice:", outcome.type);
             narrationText = "System: Action not recognized.";
@@ -639,18 +896,81 @@ function handleChoice(outcome) {
 
     heat = Math.min(MAX_HEAT, Math.max(0, heat + heatChange));
     streetCred += credChange;
-    customerState.hasMetRikkBefore = true; 
+    customerState.hasMetRikkBefore = true;
     
-    if (outcome.type !== "negotiate_sell") { 
-        fiendsLeft--;
-    }
+    // Decrement fiendsLeft for any interaction that isn't a negotiation continuation OR a social continuation that leads to another choice
+    // if (outcome.type !== "negotiate_sell" && outcome.type !== "negotiate_social" && !outcome.isSocialContinuation) {
+    //     // fiendsLeft--; // Removed: endCustomerInteraction will handle this.
+    // }
+    // The logic for fiendsLeft-- is now centralized in endCustomerInteraction.
     
     updateHUD();
     updateInventoryDisplay();
 
     if (archetype && archetype.postDealEffect) { // Check archetype exists
-        archetype.postDealEffect(dealSuccess, customerState); 
+        archetype.postDealEffect(dealSuccess, customerState);
     }
+
+    // REGULAR_JOE Loyalty Logic
+    if (currentCustomer.archetypeKey === "REGULAR_JOE" && dealSuccess && outcome.type !== "negotiate_sell") { // negotiate_sell handles its own loyalty messages
+        const previousLoyalty = customerState.loyalty;
+        if (customerState.loyalty < customerState.maxLoyalty) {
+            customerState.loyalty++;
+            if (customerState.loyalty > previousLoyalty && customerState.loyalty < customerState.maxLoyalty) {
+                 additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyaltyIncrease });
+            }
+        }
+
+        if (customerState.loyalty === 3 && previousLoyalty < 3) {
+            additionalDialogue.push({ speaker: "narration", text: "Chill Chad trusts you more. He's offering better prices!" });
+            if (archetype.dialogueVariations.loyalOfferBetterPrice) {
+                 additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyalOfferBetterPrice(customerState.mood, outcome.type === "buy_from_customer" ? "buy" : "sell") });
+            }
+            // Apply price bonus for the current deal
+            let priceBonus = 0;
+            if (outcome.type === "buy_from_customer") { // Rikk is buying, Chad offers more (lower price for Rikk)
+                priceBonus = Math.round(outcome.price * 0.05); // Chad wants 5% less
+                outcome.price -= priceBonus; // Rikk pays less
+                cash += priceBonus; // Correct cash back to Rikk
+                narrationText += ` Chad cut you a deal: $${priceBonus} off!`;
+            } else if (outcome.type === "sell_to_customer") { // Rikk is selling, Chad offers more
+                priceBonus = Math.round(outcome.price * 0.05); // Chad pays 5% more
+                outcome.price += priceBonus;
+                cash += priceBonus; // Rikk gets more cash
+                narrationText += ` Chad threw in an extra $${priceBonus}!`;
+            }
+        }
+
+        if (customerState.loyalty === customerState.maxLoyalty && previousLoyalty < customerState.maxLoyalty) {
+            additionalDialogue.push({ speaker: "narration", text: "Chill Chad is a loyal connect! He's gonna send some business your way." });
+            if (archetype.dialogueVariations.loyalBringFriend) {
+                additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyalBringFriend });
+            }
+            const referralBonus = Math.floor(Math.random() * 31) + 20; // $20-$50
+            cash += referralBonus;
+            additionalDialogue.push({ speaker: "narration", text: `Rikk got a $${referralBonus} kickback from Chad's referral!` });
+        }
+    }
+    // End REGULAR_JOE Loyalty Logic
+
+    // Set customer reaction after loyalty logic (as loyalty might influence it or add to it)
+    if (!customerReaction) { // If not set by specific outcomes like errors
+        if (dealSuccess) {
+            if (outcome.type === "buy_from_customer") {
+                customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkBuysSuccess || "Good doin' business."}"`;
+            } else if (outcome.type === "sell_to_customer") {
+                customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkSellsSuccess || "Pleasure."}"`;
+            } else if (outcome.type === "negotiate_sell") {
+                 customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.negotiationSuccess || "Aight, deal."}"`;
+            }
+        } else { // Fallback for non-deal success if specific reactions not set
+            if (outcome.type === "decline_offer_to_buy") customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkDeclinesToBuy || "Your loss, chief."}"`;
+            else if (outcome.type === "decline_offer_to_sell") customerReaction = `"${currentCustomer.name}: ${archetype.dialogueVariations?.rikkDeclinesToSell || "Cheap ass..."}"`;
+            else if (outcome.type === "acknowledge_empty_stash") customerReaction = `"${currentCustomer.name}: Lame. Hit me up when you re-up."`;
+            // other non-deal cases might need default reactions here
+        }
+    }
+
 
     activeWorldEvents.forEach(eventState => { if(eventState.event.effects && eventState.event.effects.heatModifier && heatChange > 0) { if (typeof heatChange === 'number' && typeof eventState.event.effects.heatModifier === 'number') { heat = Math.min(MAX_HEAT, Math.max(0, heat + Math.round(heatChange * (eventState.event.effects.heatModifier -1 ) ) ) ); } } });
     updateHUD();
@@ -658,6 +978,7 @@ function handleChoice(outcome) {
     setTimeout(() => {
         if (narrationText) displayPhoneMessage(narrationText, 'narration');
         if (customerReaction) displayPhoneMessage(customerReaction, 'customer');
+        additionalDialogue.forEach(d => displayPhoneMessage(d.text, d.speaker)); // Display loyalty dialogue
         setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5);
     }, CUSTOMER_WAIT_TIME / 2);
 
@@ -666,12 +987,47 @@ function handleChoice(outcome) {
 }
 
 function endCustomerInteraction() {
-    // ... (same) ...
-    clearChoices(); currentCustomer = null; 
-    if (fiendsLeft > 0 && gameActive && heat < MAX_HEAT && cash >=0) { nextCustomerBtn.disabled = false; } 
-    else if (gameActive) { nextCustomerBtn.disabled = true; }
+    if (currentCustomer && !currentCustomer.interactionConcluded) {
+        if (fiendsLeft > 0) { // Ensure fiendsLeft doesn't go below 0
+            // fiendsLeft--; // This was the old position, but problem with negotiate_sell double dipping or not decrementing on failed social.
+                           // The new logic is to only decrement if the interaction truly concludes here.
+                           // All paths leading to endCustomerInteraction that ARE NOT re-triggering handleChoice (like failed social neg that gives new choices)
+                           // should effectively count as one customer.
+        }
+        // The main fiendsLeft decrement is now handled by the fact that most paths *not* returning early from handleChoice will call this.
+        // The specific case of negotiate_sell already had its own fiendsLeft-- which is now removed.
+        // Scout interactions and basic buy/sell will flow through here.
+        // The crucial part is that paths in negotiate_social that *don't* call `handleChoice` again (like IntimidateFailAnger)
+        // will also flow through here, decrementing fiendsLeft appropriately.
+        // Paths that *do* call `handleChoice` again (like successful social neg) will not decrement here,
+        // but the subsequent `handleChoice` (e.g. "sell_to_customer") will then lead to `endCustomerInteraction`.
+        // This might still be tricky.
+        // Let's simplify: fiendsLeft is decremented UNLESS the outcome was a step in an ongoing negotiation
+        // that presents new choices *without* ending the interaction.
+        // The isSocialContinuation flag helps, but negotiate_sell's original structure also needs to be non-decrementing.
+
+        // Revised strategy: Decrement unless it's a multi-step outcome that hasn't finished.
+        // The `negotiate_sell` and `negotiate_social` that `return` early after presenting new choices
+        // will NOT hit this `endCustomerInteraction` call immediately. The choice they present WILL.
+        // So, this should be fine.
+        if (fiendsLeft > 0 && currentCustomer.archetypeKey !== "INTERNAL_LOGIC_NO_DECREMENT") { // A dummy key if needed
+             fiendsLeft--;
+        }
+        currentCustomer.interactionConcluded = true;
+    }
+
+    clearChoices();
+    currentCustomer = null;
+
+    if (fiendsLeft > 0 && gameActive && heat < MAX_HEAT && cash >=0) {
+        nextCustomerBtn.disabled = false;
+    } else if (gameActive) {
+        nextCustomerBtn.disabled = true;
+    }
     saveGameState();
-    if (fiendsLeft <= 0 && gameActive) { setTimeout(()=> endGame("completed"), CUSTOMER_WAIT_TIME); }
+    if (fiendsLeft <= 0 && gameActive) {
+        setTimeout(()=> endGame("completed"), CUSTOMER_WAIT_TIME);
+    }
 }
 
 function updateHUD() { /* ... same ... */ cashDisplay.textContent = cash; dayDisplay.textContent = Math.max(0, fiendsLeft); heatDisplay.textContent = heat; credDisplay.textContent = streetCred; }
