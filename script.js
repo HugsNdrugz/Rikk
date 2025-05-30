@@ -462,7 +462,24 @@ function generateCustomerInteractionData() {
 }
 
 function startCustomerInteraction() {
+    console.log('[Debug] startCustomerInteraction: Called');
     generateCustomerInteractionData(); 
+    console.log('[Debug] startCustomerInteraction: currentCustomer after generation:', JSON.stringify(currentCustomer, null, 2));
+    if (currentCustomer && currentCustomer.dialogue) {
+        console.log('[Debug] startCustomerInteraction: currentCustomer.dialogue.length:', currentCustomer.dialogue.length);
+        if (currentCustomer.dialogue.length === 0) {
+            console.warn('[Debug] startCustomerInteraction: currentCustomer.dialogue is EMPTY!');
+        }
+    } else {
+        console.error('[Debug] startCustomerInteraction: currentCustomer or currentCustomer.dialogue is null/undefined!');
+    }
+    const phoneTitleElement = document.getElementById('phone-title');
+    if (phoneTitleElement && currentCustomer && currentCustomer.name) {
+        phoneTitleElement.textContent = currentCustomer.name;
+    } else if (phoneTitleElement) {
+        // Fallback if customer name is not available, revert to default or clear
+        phoneTitleElement.textContent = 'Street Talk'; // Or simply ''
+    }
     let dialogueIndex = 0;
 
     rikkPhoneDisplay.classList.remove('hidden');

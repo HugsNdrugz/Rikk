@@ -480,63 +480,74 @@ h2 { /* Modal titles, etc. */
 
 /* Choices Area - Styled like an input field + send buttons */
 #choices-area {
-    padding: var(--spacing-sm); 
-    display: flex; 
-    flex-direction: row; 
-    flex-wrap: wrap; 
-    gap: var(--spacing-sm); 
-    background-color: #2A2A2E; 
+    padding: var(--spacing-sm) var(--spacing-md); /* Keep padding around the area */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: var(--spacing-sm); /* Space between buttons */
+    background-color: #2A2A2E; /* Existing background */
     border-top: 1px solid #3A3A3C;
     flex-shrink: 0;
-    align-items: center; 
-    padding-left: var(--spacing-md);
-    padding-right: var(--spacing-md);
-    min-height: 60px; 
-    margin: 2px; margin-bottom: 4px; 
-    border-bottom-left-radius: var(--phone-screen-inset-radius); 
+    align-items: center; /* Vertically align items if they wrap to multiple lines */
+    justify-content: flex-start; /* Align buttons to the start by default */
+    min-height: 50px; /* Adjusted min-height */
+    margin: 2px;
+    margin-bottom: 4px;
+    border-bottom-left-radius: var(--phone-screen-inset-radius);
     border-bottom-right-radius: var(--phone-screen-inset-radius);
 }
 
+/* Quick Reply Choice Buttons */
 .choice-button {
-    flex-grow: 1; 
-    padding: var(--spacing-sm) var(--spacing-md); 
-    border: none; 
-    border-radius: 20px; 
-    font-family: var(--font-body); 
-    font-weight: 700;
-    font-size: 0.85rem; 
+    padding: var(--spacing-xs) var(--spacing-md); /* Reduced padding */
+    border: 1px solid var(--color-primary); /* Border matching primary color */
+    border-radius: 20px; /* Keep pill shape */
+    font-family: var(--font-body);
+    font-weight: 500; /* Slightly less bold */
+    font-size: 0.8rem; /* Slightly smaller font */
     cursor: pointer;
-    transition: background-color var(--transition-duration-short) var(--transition-easing), 
-                transform var(--transition-duration-short) var(--transition-easing),
-                box-shadow var(--transition-duration-short) var(--transition-easing);
-    background-color: var(--color-primary); 
-    color: var(--color-on-primary);
-    text-align: center; 
-    min-width: 80px; 
+    transition: background-color var(--transition-duration-short) var(--transition-easing),
+                color var(--transition-duration-short) var(--transition-easing),
+                transform var(--transition-duration-short) var(--transition-easing);
+    background-color: transparent; /* Transparent background */
+    color: var(--color-primary); /* Text color matching border */
+    text-align: center;
+    /* min-width: auto; /* Let content define width initially */
+    /* flex-grow: 0; /* Don't grow, act like chips */
+    /* Removed min-width and flex-grow to let them size more naturally initially, but #choices-area handles flex distribution */
 }
+
 .choice-button:hover {
-    background-color: var(--color-hub-inventory-hover); 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background-color: var(--color-primary); /* Fill on hover */
+    color: var(--color-on-primary); /* Text color changes on hover */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
+
 .choice-button:active {
     transform: scale(0.97);
 }
+
 .choice-button:disabled,
 .choice-button:disabled:hover {
-    background-color: var(--color-disabled-bg) !important; 
+    background-color: var(--color-disabled-bg) !important;
     color: var(--color-disabled-text) !important;
+    border-color: var(--color-disabled-border) !important;
     box-shadow: none;
     transform: none;
     cursor: not-allowed;
 }
 
+/* Special styling for decline buttons to make them distinct but still chip-like */
 .choice-button.decline {
-    background-color: #555; 
-    color: var(--color-on-surface);
+    border-color: var(--color-grey-mid);
+    color: var(--color-grey-mid);
+    background-color: transparent;
 }
+
 .choice-button.decline:hover {
-    background-color: var(--color-error); 
+    background-color: var(--color-error);
     color: var(--color-on-primary);
+    border-color: var(--color-error);
 }
 
 
@@ -817,4 +828,24 @@ h2 { /* Modal titles, etc. */
     .choice-button { font-size: 0.8rem; padding: var(--spacing-sm) var(--spacing-md); }
     #phone-screen-header { font-size: 0.95rem; }
     #event-ticker-container { font-size: 0.7rem; }
+}
+
+/* Phone Header Styling */
+.phone-header {
+    background-color: #2A2A2E; /* Slightly lighter than phone body, similar to an existing header style */
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid #3A3A3C; /* Subtle separator */
+    text-align: center; /* Center the title */
+    flex-shrink: 0;
+    margin: 2px; /* Match screen inset */
+    border-top-left-radius: var(--phone-screen-inset-radius);
+    border-top-right-radius: var(--phone-screen-inset-radius);
+}
+
+#phone-title {
+    color: var(--color-on-surface); /* Light text color, should be visible */
+    font-family: var(--font-body); /* Ensure consistent font */
+    font-weight: 700; /* Make it bold */
+    font-size: 0.95rem; /* Good readable size */
+    margin: 0; /* Remove default h3 margin */
 }
