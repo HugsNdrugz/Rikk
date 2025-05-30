@@ -126,10 +126,12 @@ const customerArchetypes = {
         baseName: "Chill Chad", // Friendlier, more laid-back
         loyalty: 0, // Default loyalty
         maxLoyalty: 5, // Max loyalty level
-        greeting: (customer, item) => {
+        greeting: function(customer, item) { // Changed to traditional function
             let g = "";
-            if (customer.loyalty === customer.maxLoyalty && customerArchetypes.REGULAR_JOE.dialogueVariations.loyalGreeting) {
-                return customerArchetypes.REGULAR_JOE.dialogueVariations.loyalGreeting(customer.mood);
+            // Access its own dialogueVariations using 'this'
+            if (customer.loyalty === customer.maxLoyalty && this.dialogueVariations.loyalGreeting) {
+                // Assuming loyalGreeting is also a function that might take mood
+                return this.dialogueVariations.loyalGreeting(customer.mood);
             }
             const itemName = item ? item.name.split("'")[1] || item.name.split(" ")[1] || "the usual vibe" : 'something to unwind with';
             if (customer.mood === "paranoid") {
@@ -172,16 +174,24 @@ const customerArchetypes = {
             negotiationCharmSuccess: (mood) => "Alright, Rikk, you smooth talker. For you, at that price? Deal.",
             negotiationCharmFail: (mood) => "Heh, nice try, Rikk. Flattery won't change the numbers though. My original offer of X is still on the table if you're interested.",
             // End Social Negotiation Dialogues
-            negotiationSuccess: (mood) => {
+
+            // Standard Price Haggle Dialogues for REGULAR_JOE
+            haggleAttemptRikkBuys: (mood) => "Hmm, that's a bit steep. How about $X?", // Rikk wants to pay less
+            haggleAttemptRikkSells: (mood) => "For this quality? I was thinking more like $X.", // Rikk wants customer to pay more
+            haggleSuccessCustomerBuys: (mood) => "Alright, alright, you drive a hard bargain, Rikk. Deal.", // Customer agrees to Rikk's higher price
+            haggleSuccessCustomerSells: (mood) => "Sigh... okay, Rikk, for you, $X it is.", // Customer agrees to Rikk's lower price
+            hagglePartialSuccessCustomerBuys: (mood) => "I can't do $X, but I can meet you at $Y. Take it or leave it.", // Customer meets halfway when Rikk sells
+            hagglePartialSuccessCustomerSells: (mood) => "No way I'm taking $X, but I could do $Y.", // Customer meets halfway when Rikk buys
+            haggleFailStickPrice: (mood) => "Nah, price is firm, Rikk. $X, take it or leave it.", // Customer rejects haggle, sticks to original price
+            haggleFailWalkAway: (mood) => "You trying to play me? Forget it, I'm out.", // Customer rejects haggle and ends interaction
+            // End Standard Price Haggle Dialogues
+
+            negotiationSuccess: (mood) => { // This is for the old negotiation system, may need review/phasing out. For now, keep.
                 if (mood === "paranoid") return "Aight, cool, cool. **But let's wrap this up, man, my aura feels... exposed. And I think that car alarm is Morse code for 'bust'.**";
-                }
-            },
-            negotiationFail: (mood) => {
-                if (mood === "paranoid") return "Nah, man, that's a bit steep. **And honestly, this whole block is giving me the heebie-jeebies right now. Think I saw a cop hiding in a trash can.**";
                 if (mood === "happy") return "Sweet! That's what I'm talking about! **You're a legend, Rikk! High five! Or, like, an air five, if you're not into the whole 'touching' thing.**";
                 return "Yeah, that's solid. **Good looking out.**";
             },
-            negotiationFail: (mood) => {
+            negotiationFail: (mood) => { // This is for the old negotiation system.
                 if (mood === "paranoid") return "Nah, man, that's a bit steep. **And honestly, this whole block is giving me the heebie-jeebies right now. Think I saw a cop hiding in a trash can.**";
                 if (mood === "happy") return "Whoa there, Rikk, easy on the wallet! **My bank account is already giving me the silent treatment. Maybe next time when I win the lottery, or, you know, find a twenty.**";
                 return "Ah, that's a little rich for my blood, Rikk. **Gotta watch the budget, you know? Adulting and all that jazz.**";

@@ -25,6 +25,7 @@ const chatContainer = document.getElementById('chat-container');
 const choicesArea = document.getElementById('choices-area');
 
 const openInventoryBtn = document.getElementById('open-inventory-btn');
+const togglePhoneBtn = document.getElementById('toggle-phone-btn'); // New phone toggle button
 const inventoryCountDisplay = document.getElementById('inventory-count-display');
 const nextCustomerBtn = document.getElementById('next-customer-btn');
 
@@ -103,7 +104,23 @@ function initGame() {
     newGameBtn.addEventListener('click', handleStartNewGameClick); continueGameBtn.addEventListener('click', handleContinueGameClick); restartGameBtn.addEventListener('click', handleRestartGameClick);
     nextCustomerBtn.addEventListener('click', nextFiend); openInventoryBtn.addEventListener('click', openInventoryModal); closeModalBtn.addEventListener('click', closeInventoryModal);
     inventoryModal.addEventListener('click', (e) => { if (e.target === inventoryModal) closeInventoryModal(); });
-    rikkPhoneDisplay.classList.add('hidden'); rikkPhoneDisplay.classList.remove('active');
+
+    // Phone toggle button listener
+    togglePhoneBtn.addEventListener('click', () => {
+        if (rikkPhoneDisplay.classList.contains('visible')) {
+            rikkPhoneDisplay.classList.remove('visible');
+            rikkPhoneDisplay.classList.add('docked'); // Or just remove 'visible' if docked is default hidden state via transform
+        } else {
+            rikkPhoneDisplay.classList.add('visible');
+            rikkPhoneDisplay.classList.remove('docked');
+        }
+    });
+
+    // Initial phone state: hidden (neither 'visible' nor 'docked' implies hidden by default transform)
+    rikkPhoneDisplay.classList.remove('visible');
+    rikkPhoneDisplay.classList.remove('docked');
+    rikkPhoneDisplay.classList.remove('hidden'); // Remove old class if present
+    rikkPhoneDisplay.classList.remove('active'); // Remove old class if present
 }
 
 
@@ -118,7 +135,9 @@ function initializeNewGameState() {
 function startGameFlow() {
     // ... (same) ...
     gameActive = true; splashScreen.classList.remove('active'); splashScreen.style.display = 'none'; startScreen.classList.remove('active'); endScreen.classList.remove('active'); gameScreen.classList.add('active');
-    rikkPhoneDisplay.classList.add('hidden'); rikkPhoneDisplay.classList.remove('active');
+    // Start with phone docked or fully hidden
+    rikkPhoneDisplay.classList.remove('visible');
+    rikkPhoneDisplay.classList.add('docked'); // Or remove 'docked' too if default is fully hidden
     updateHUD(); updateInventoryDisplay(); clearChat(); clearChoices(); nextFiend();
 }
 
@@ -129,7 +148,9 @@ function endGame(reason) {
     if (reason === "heat") { finalVerdictText.textContent = `The block's too hot, nigga! 5-0 swarming. Heat: ${heat}. Time to ghost.`; finalVerdictText.style.color = "var(--color-error)"; }
     else if (reason === "bankrupt") { finalVerdictText.textContent = "Broke as a joke. Can't hustle on E, fam."; finalVerdictText.style.color = "var(--color-error)"; }
     else { if (cash >= STARTING_CASH * 3 && streetCred > MAX_FIENDS) { finalVerdictText.textContent = "You a certified KINGPIN! The streets whisper your name."; } else if (cash >= STARTING_CASH * 1.5 && streetCred > MAX_FIENDS / 2) { finalVerdictText.textContent = "Solid hustle, G. Made bank and respect."; } else if (cash > STARTING_CASH) { finalVerdictText.textContent = "Made some profit. Not bad for a night's work."; } else if (cash <= STARTING_CASH && streetCred < 0) { finalVerdictText.textContent = "Tough night. Lost dough and respect. This life ain't for everyone."; } else { finalVerdictText.textContent = "Broke even or worse. Gotta step your game up, Rikk."; } finalVerdictText.style.color = cash > STARTING_CASH ? "var(--color-success-green)" : "var(--color-accent-orange)"; }
-    rikkPhoneDisplay.classList.add('hidden'); rikkPhoneDisplay.classList.remove('active'); clearSavedGameState();
+    rikkPhoneDisplay.classList.remove('visible');
+    rikkPhoneDisplay.classList.add('docked'); // Ensure phone is hidden/docked on game end
+    clearSavedGameState();
 }
 
 function updateDayOfWeek() { /* ... same ... */ const currentIndex = days.indexOf(dayOfWeek); dayOfWeek = days[(currentIndex + 1) % days.length];}
@@ -154,7 +175,9 @@ function nextFiend() {
     let heatReduction = 1 + playerSkills.lowProfile; activeWorldEvents.forEach(eventState => { if (eventState.event.effects && eventState.event.effects.heatReductionModifier) { heatReduction *= eventState.event.effects.heatReductionModifier; } });
     heat = Math.max(0, heat - Math.round(heatReduction));
     updateHUD(); clearChat(); clearChoices(); nextCustomerBtn.disabled = true;
-    rikkPhoneDisplay.classList.remove('active'); setTimeout(() => rikkPhoneDisplay.classList.add('hidden'), PHONE_ANIMATION_DURATION);
+    // Phone is initially hidden/docked, made visible by startCustomerInteraction
+    rikkPhoneDisplay.classList.remove('visible');
+    rikkPhoneDisplay.classList.add('docked');
     playSound(doorKnockSound); knockEffect.textContent = `*${dayOfWeek} hustle... someone's knockin'.*`; knockEffect.classList.remove('hidden'); knockEffect.style.animation = 'none'; void knockEffect.offsetWidth; knockEffect.style.animation = 'knockAnim 0.5s ease-out forwards';
     setTimeout(() => { knockEffect.classList.add('hidden'); startCustomerInteraction(); }, KNOCK_ANIMATION_DURATION);
     saveGameState(); 
@@ -452,10 +475,13 @@ function generateCustomerInteractionData() {
                 }
                 choices.push({ text: `Cop it (Need $${customerDemandsPrice - cash} more)`, outcome: { type: "buy_from_customer", item: itemContext, price: customerDemandsPrice }, disabled: true });
             }
+            // Add new Haggle choice if Rikk is buying
+            if (!archetype.negotiationResists) {
+                choices.push({ text: "Haggle for Lower Price", outcome: { type: "haggle_price", direction: "rikk_buys", item: itemContext, originalPrice: customerDemandsPrice } });
+            }
             choices.push({ text: "Nah, I'm straight on that.", outcome: { type: "decline_offer_to_buy", item: itemContext } });
 
-        } else if (inventory.length > 0 && archetype.buyPreference && archetype.buyPreference(inventory[0])) { // Customer wants to buy from Rikk (and Rikk has items they might want)
-            // Simplified item selection for brevity; ideally, filter inventory by buyPreference.
+        } else if (inventory.length > 0 && archetype.buyPreference && typeof archetype.buyPreference === 'function' && inventory.some(invItem => archetype.buyPreference(invItem)) ) { // Customer wants to buy from Rikk (and Rikk has items they might want)
             let potentialItemsToSell = inventory.filter(invItem => archetype.buyPreference(invItem));
             if (potentialItemsToSell.length === 0) { // Fallback if no preferred items, offer anything (or handle differently)
                  potentialItemsToSell = inventory;
@@ -517,10 +543,9 @@ function generateCustomerInteractionData() {
                 choices.push({ text: `Serve 'em ($${customerOfferPrice}) (They Broke!)`, outcome: { type: "sell_to_customer", item: itemContext, price: customerOfferPrice }, disabled: true });
             }
 
-            // Standard price negotiation
-            if (!archetype.negotiationResists && rikkBaseSellPrice > customerOfferPrice + 10 && customerData.cashOnHand >= Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9)) {
-                const hagglePrice = Math.min(customerData.cashOnHand, Math.round((rikkBaseSellPrice + customerOfferPrice) / 1.9)); // Corrected divisor
-                choices.push({ text: `Haggle (Aim $${hagglePrice})`, outcome: { type: "negotiate_sell", item: itemContext, proposedPrice: hagglePrice, originalOffer: customerOfferPrice } });
+            // New Haggle button logic for Rikk Selling (replaces old negotiate_sell type)
+            if (!archetype.negotiationResists && rikkBaseSellPrice > customerOfferPrice) {
+                 choices.push({ text: "Haggle for Higher Price", outcome: { type: "haggle_price", direction: "rikk_sells", item: itemContext, originalPrice: customerOfferPrice, rikkTargetPrice: rikkBaseSellPrice } });
             }
 
             // Social negotiation choices for REGULAR_JOE
@@ -572,8 +597,12 @@ function startCustomerInteraction() {
     generateCustomerInteractionData(); 
     let dialogueIndex = 0;
 
-    rikkPhoneDisplay.classList.remove('hidden');
-    setTimeout(() => rikkPhoneDisplay.classList.add('active'), 50);
+    // Make phone visible for interaction
+    rikkPhoneDisplay.classList.add('visible');
+    rikkPhoneDisplay.classList.remove('docked');
+    // rikkPhoneDisplay.classList.remove('hidden'); // Ensure old class is not interfering
+    // setTimeout(() => rikkPhoneDisplay.classList.add('active'), 50); // Old animation trigger, replace with CSS transitions on .visible
+
     clearChat(); 
 
     const displayNext = () => {
@@ -674,79 +703,93 @@ function handleChoice(outcome) {
             }
             break;
 
-        case "negotiate_sell":
-            const negotiateArchetype = archetype; 
-            displayPhoneMessage(`Rikk: "Hold up, $${outcome.originalOffer}? Nah, G. I need at least $${outcome.proposedPrice} for this."`, 'rikk');
-            setTimeout(() => {
-                let successChance = 0.5 + (playerSkills.negotiator * 0.1);
-                if (negotiateArchetype.priceToleranceFactor < 0.9) successChance -= 0.15;
-                if (negotiateArchetype.priceToleranceFactor > 1.1) successChance += 0.15;
-                if (customerState.mood === "annoyed") successChance -= 0.2; 
+        /* OLD "negotiate_sell" case REMOVED */
 
-                let negHeat = 0; let negCred = 0;
-                if (Math.random() < successChance) { 
-                    const finalPrice = outcome.proposedPrice;
-                    const itemToSellIndex = inventory.findIndex(i => i.id === outcome.item.id && i.quality === outcome.item.quality && i.purchasePrice === outcome.item.purchasePrice);
-                    if (itemToSellIndex !== -1) {
-                        const itemSold = inventory.splice(itemToSellIndex, 1)[0];
-                        cash += finalPrice;
-                        negHeat = itemSold.itemTypeObj.heat + (negotiateArchetype.heatImpact || 0) + 1; 
-                        negCred = (negotiateArchetype.credImpactSell || 0) + 1; 
-                        customerState.mood = "impressed";
-                        // customerState.loyaltyToRikk +=1; // Old generic loyalty
-                        dealSuccess = true;
-                        // Loyalty for REGULAR_JOE on successful negotiation
-                        if (currentCustomer.archetypeKey === "REGULAR_JOE" && dealSuccess) {
-                            if (customerState.loyalty < customerState.maxLoyalty) {
-                                customerState.loyalty++;
-                                additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyaltyIncrease });
-                                if (customerState.loyalty === 3) {
-                                    additionalDialogue.push({ speaker: "narration", text: "Chill Chad seems to trust you more. Might offer better deals." });
-                                    // Price adjustment already handled by this negotiation, future deals will reflect.
-                                }
-                                if (customerState.loyalty === customerState.maxLoyalty) {
-                                    additionalDialogue.push({ speaker: "narration", text: "Chill Chad is a loyal connect! He's gonna send some business your way." });
-                                    additionalDialogue.push({ speaker: "customer", text: archetype.dialogueVariations.loyalBringFriend });
-                                    const referralBonus = Math.floor(Math.random() * 31) + 20; // $20-$50
-                                    cash += referralBonus;
-                                    additionalDialogue.push({ speaker: "narration", text: `Rikk got a $${referralBonus} kickback from Chad's referral!` });
-                                }
-                            }
-                        }
-                         if (itemSold.itemTypeObj.type === "DRUG" && itemSold.itemTypeObj.addictionChance > 0) {
-                            const subType = itemSold.itemTypeObj.subType;
-                            customerState.addictionLevel[subType] = (customerState.addictionLevel[subType] || 0) + itemSold.itemTypeObj.addictionChance;
-                        }
-                        displayPhoneMessage(`Success! Sold "${itemSold.name}" for $${finalPrice}.`, 'narration');
-                        displayPhoneMessage(`"${currentCustomer.name}: ${negotiateArchetype.dialogueVariations?.negotiationSuccess || "Aight, deal."}"`, 'customer');
-                        playSound(cashSound);
-                        customerState.lastInteractionWithRikk = { type: "rikk_sold_negotiated", item: itemSold.name, outcome: "success" };
+        case "haggle_price":
+            clearChoices();
+            let hagglePercent = 0.15; // Try to change price by 15%
+            let rikkHagglePrice;
+
+            if (outcome.direction === "rikk_buys") { // Rikk wants to pay less
+                rikkHagglePrice = Math.max(5, Math.round(outcome.originalPrice * (1 - hagglePercent)));
+                displayPhoneMessage((archetype.dialogueVariations.haggleAttemptRikkBuys || "Hmm, that's a bit steep. How about $X?").replace('$X', '$' + rikkHagglePrice), 'rikk');
+            } else { // outcome.direction === "rikk_sells" - Rikk wants customer to pay more
+                rikkHagglePrice = Math.round(outcome.originalPrice * (1 + hagglePercent));
+                rikkHagglePrice = Math.min(rikkHagglePrice, outcome.rikkTargetPrice); // Don't exceed Rikk's own target street value
+                displayPhoneMessage((archetype.dialogueVariations.haggleAttemptRikkSells || "For this quality? I was thinking more like $X.").replace('$X', '$' + rikkHagglePrice), 'rikk');
+            }
+
+            let successChance = 0.4; // Base success chance
+            successChance += (streetCred / 50); // Approx +0.2 at 10 cred, -0.2 at -10 cred
+            successChance -= ((archetype.priceToleranceFactor || 1.0) - 1) * 0.2;
+            successChance = Math.max(0.1, Math.min(0.9, successChance)); // Clamp chance
+
+            setTimeout(() => {
+                const randomRoll = Math.random();
+                let finalPrice;
+                let partialMet = false; // Flag to avoid double-processing if partial success falls through to fail-stick-price
+
+                if (randomRoll < successChance) { // Full Success
+                    finalPrice = rikkHagglePrice;
+                    dealSuccess = true;
+                    streetCred += 1;
+                    if (outcome.direction === "rikk_buys") {
+                        displayPhoneMessage((archetype.dialogueVariations.haggleSuccessCustomerSells || "Sigh... okay, Rikk, for you, $X it is.").replace('$X', '$' + finalPrice), 'customer');
+                        handleChoice({ type: "buy_from_customer", item: outcome.item, price: finalPrice });
+                    } else { // Rikk sells
+                        displayPhoneMessage((archetype.dialogueVariations.haggleSuccessCustomerBuys || "Alright, alright, you drive a hard bargain, Rikk. Deal."), 'customer');
+                        handleChoice({ type: "sell_to_customer", item: outcome.item, price: finalPrice });
                     }
-                } else { 
-                    negHeat = 1; negCred = -1; 
-                    customerState.mood = "angry";
-                    // customerState.loyaltyToRikk -=2; // Old generic loyalty
-                    displayPhoneMessage(`They ain't budging. "${negotiateArchetype.dialogueVariations?.negotiationFail || `Take $${outcome.originalOffer} or I walk,`}" they say.`, 'narration');
-                    choicesArea.innerHTML = '';
-                    const acceptOriginalBtn = document.createElement('button'); acceptOriginalBtn.textContent = `Aight, fine. ($${outcome.originalOffer})`; acceptOriginalBtn.classList.add('choice-button');
-                    acceptOriginalBtn.addEventListener('click', () => handleChoice({ type: "sell_to_customer", item: outcome.item, price: outcome.originalOffer, isSocialContinuation: true })); // Indicate continuation
-                    choicesArea.appendChild(acceptOriginalBtn);
-                    const declineFullyBtn = document.createElement('button'); declineFullyBtn.textContent = `Nah, deal's off.`; declineFullyBtn.classList.add('choice-button', 'decline');
-                    declineFullyBtn.addEventListener('click', () => handleChoice({ type: "decline_offer_to_sell", item: outcome.item, isSocialContinuation: true })); // Indicate continuation
-                    choicesArea.appendChild(declineFullyBtn);
-                    customerState.lastInteractionWithRikk = { type: "rikk_negotiation_failed" };
-                    // Do not decrement fiendsLeft here, endCustomerInteraction will handle it if we don't proceed to another handleChoice
-                    updateHUD(); // Update HUD for immediate feedback on cred/heat changes from failed negotiation attempt
-                    saveGameState(); // Save state after displaying choices
-                    return; 
+                } else if (randomRoll < successChance + 0.3) { // Partial Success
+                    let partialPrice; // Define partialPrice here
+                    if (outcome.direction === "rikk_buys") {
+                        partialPrice = Math.max(rikkHagglePrice + 5, Math.round((outcome.originalPrice + rikkHagglePrice) / 2));
+                        if (partialPrice >= outcome.originalPrice - 5 ) {
+                            partialMet = false; // Fall through
+                        } else {
+                            partialMet = true; finalPrice = partialPrice; dealSuccess = true;
+                            displayPhoneMessage((archetype.dialogueVariations.hagglePartialSuccessCustomerSells || "No way I'm taking $X, but I could do $Y.").replace('$X', '$' + rikkHagglePrice).replace('$Y', '$' + finalPrice), 'customer');
+                            handleChoice({ type: "buy_from_customer", item: outcome.item, price: finalPrice });
+                        }
+                    } else { // Rikk sells
+                        partialPrice = Math.min(rikkHagglePrice - 5, Math.round((outcome.originalPrice + rikkHagglePrice) / 2));
+                        if (partialPrice <= outcome.originalPrice + 5) {
+                            partialMet = false; // Fall through
+                        } else {
+                            partialMet = true; finalPrice = partialPrice; dealSuccess = true;
+                            displayPhoneMessage((archetype.dialogueVariations.hagglePartialSuccessCustomerBuys || "I can't do $X, but I can meet you at $Y. Take it or leave it.").replace('$X', '$' + rikkHagglePrice).replace('$Y', '$' + finalPrice), 'customer');
+                            handleChoice({ type: "sell_to_customer", item: outcome.item, price: finalPrice });
+                        }
+                    }
+                    if (!partialMet) { // Fallthrough to FailStickPrice logic if partial wasn't meaningful
+                        displayPhoneMessage((archetype.dialogueVariations.haggleFailStickPrice || "Nah, price is firm, Rikk. $X, take it or leave it.").replace('$X', '$' + outcome.originalPrice), 'customer');
+                        if (outcome.direction === "rikk_buys") {
+                            displayChoices([ { text: `OK, pay $${outcome.originalPrice}`, outcome: { type: "buy_from_customer", item: outcome.item, price: outcome.originalPrice } }, { text: "Nah, deal's off.", outcome: { type: "decline_offer_to_buy", item: outcome.item } } ]);
+                        } else {
+                            displayChoices([ { text: `OK, sell for $${outcome.originalPrice}`, outcome: { type: "sell_to_customer", item: outcome.item, price: outcome.originalPrice } }, { text: "Nah, deal's off.", outcome: { type: "decline_offer_to_sell", item: outcome.item } } ]);
+                        }
+                    }
+                } else { // Full Failure
+                    if (Math.random() < 0.20) {
+                        displayPhoneMessage(archetype.dialogueVariations.haggleFailWalkAway || "You trying to play me? Forget it, I'm out.", 'customer');
+                        streetCred -= 1; heat += 1; customerState.mood = "angry";
+                        updateHUD(); setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5);
+                    } else {
+                        displayPhoneMessage((archetype.dialogueVariations.haggleFailStickPrice || "Nah, price is firm, Rikk. $X, take it or leave it.").replace('$X', '$' + outcome.originalPrice), 'customer');
+                        if (outcome.direction === "rikk_buys") {
+                            displayChoices([ { text: `OK, pay $${outcome.originalPrice}`, outcome: { type: "buy_from_customer", item: outcome.item, price: outcome.originalPrice } }, { text: "Nah, deal's off.", outcome: { type: "decline_offer_to_buy", item: outcome.item } } ]);
+                        } else {
+                            displayChoices([ { text: `OK, sell for $${outcome.originalPrice}`, outcome: { type: "sell_to_customer", item: outcome.item, price: outcome.originalPrice } }, { text: "Nah, deal's off.", outcome: { type: "decline_offer_to_sell", item: outcome.item } } ]);
+                        }
+                    }
                 }
-                // On successful price negotiation, heat/cred are updated. fiendsLeft is handled by endCustomerInteraction.
-                heat += negHeat; streetCred += negCred;
-                // fiendsLeft--; // Removed: endCustomerInteraction will handle this.
-                updateHUD(); updateInventoryDisplay();
-                setTimeout(endCustomerInteraction, CUSTOMER_WAIT_TIME * 1.5); // This will eventually call endCustomerInteraction
-            }, 1500);
-            return; 
+                // Only save if new choices are presented (no new handleChoice called and not a walk away)
+                if (!dealSuccess && !partialMet && !(randomRoll >= (successChance + 0.3) && Math.random() < 0.20) ) {
+                    saveGameState();
+                }
+                updateHUD();
+            }, CUSTOMER_WAIT_TIME);
+            return;
 
         case "decline_offer_to_buy":
             narrationText = "Rikk ain't interested. Told 'em to bounce.";
@@ -988,29 +1031,7 @@ function handleChoice(outcome) {
 
 function endCustomerInteraction() {
     if (currentCustomer && !currentCustomer.interactionConcluded) {
-        if (fiendsLeft > 0) { // Ensure fiendsLeft doesn't go below 0
-            // fiendsLeft--; // This was the old position, but problem with negotiate_sell double dipping or not decrementing on failed social.
-                           // The new logic is to only decrement if the interaction truly concludes here.
-                           // All paths leading to endCustomerInteraction that ARE NOT re-triggering handleChoice (like failed social neg that gives new choices)
-                           // should effectively count as one customer.
-        }
-        // The main fiendsLeft decrement is now handled by the fact that most paths *not* returning early from handleChoice will call this.
-        // The specific case of negotiate_sell already had its own fiendsLeft-- which is now removed.
-        // Scout interactions and basic buy/sell will flow through here.
-        // The crucial part is that paths in negotiate_social that *don't* call `handleChoice` again (like IntimidateFailAnger)
-        // will also flow through here, decrementing fiendsLeft appropriately.
-        // Paths that *do* call `handleChoice` again (like successful social neg) will not decrement here,
-        // but the subsequent `handleChoice` (e.g. "sell_to_customer") will then lead to `endCustomerInteraction`.
-        // This might still be tricky.
-        // Let's simplify: fiendsLeft is decremented UNLESS the outcome was a step in an ongoing negotiation
-        // that presents new choices *without* ending the interaction.
-        // The isSocialContinuation flag helps, but negotiate_sell's original structure also needs to be non-decrementing.
-
-        // Revised strategy: Decrement unless it's a multi-step outcome that hasn't finished.
-        // The `negotiate_sell` and `negotiate_social` that `return` early after presenting new choices
-        // will NOT hit this `endCustomerInteraction` call immediately. The choice they present WILL.
-        // So, this should be fine.
-        if (fiendsLeft > 0 && currentCustomer.archetypeKey !== "INTERNAL_LOGIC_NO_DECREMENT") { // A dummy key if needed
+        if (fiendsLeft > 0 ) {
              fiendsLeft--;
         }
         currentCustomer.interactionConcluded = true;
@@ -1018,6 +1039,10 @@ function endCustomerInteraction() {
 
     clearChoices();
     currentCustomer = null;
+
+    // Hide/Dock the phone after interaction
+    rikkPhoneDisplay.classList.remove('visible');
+    rikkPhoneDisplay.classList.add('docked'); // Or just remove 'visible'
 
     if (fiendsLeft > 0 && gameActive && heat < MAX_HEAT && cash >=0) {
         nextCustomerBtn.disabled = false;
@@ -1047,8 +1072,23 @@ function updateInventoryDisplay() {
         itemDiv.appendChild(itemDetails); inventoryList.appendChild(itemDiv); 
     }); } 
 }
-function openInventoryModal() { /* ... same ... */ inventoryModal.classList.add('active'); rikkPhoneDisplay.classList.remove('active'); rikkPhoneDisplay.classList.add('hidden'); }
-function closeInventoryModal() { /* ... same ... */ inventoryModal.classList.remove('active'); if (currentCustomer) { rikkPhoneDisplay.classList.remove('hidden'); rikkPhoneDisplay.classList.add('active'); } }
+function openInventoryModal() {
+    inventoryModal.classList.add('active');
+    // If phone is visible during an interaction, hide it
+    if (rikkPhoneDisplay.classList.contains('visible')) {
+        rikkPhoneDisplay.classList.remove('visible');
+        // Optionally, add a class to remember it was visible
+        rikkPhoneDisplay.dataset.wasVisible = 'true';
+    }
+}
+function closeInventoryModal() {
+    inventoryModal.classList.remove('active');
+    // If phone was visible before inventory and an interaction is still ongoing
+    if (rikkPhoneDisplay.dataset.wasVisible === 'true' && currentCustomer) {
+        rikkPhoneDisplay.classList.add('visible');
+    }
+    rikkPhoneDisplay.dataset.wasVisible = 'false'; // Reset flag
+}
 function clearChat() { /* ... same ... */ chatContainer.innerHTML = ''; }
 function clearChoices() { /* ... same ... */ choicesArea.innerHTML = ''; }
 function playSound(audioElement) { /* ... same ... */ if (audioElement) { audioElement.currentTime = 0; audioElement.play().catch(e => console.warn("Error playing sound:", e)); } }

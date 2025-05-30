@@ -348,178 +348,178 @@ h2 { /* Modal titles, etc. */
     100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* Phone Display - Overall Phone Look */
-#rikk-phone-display {
-    position: relative; 
+/* --- New Phone UI Styles --- */
+.phone-frame {
+    position: absolute; /* Positioned within game-scene */
+    bottom: var(--spacing-lg); /* Example positioning */
+    left: 50%;
+    transform: translateX(-50%) translateY(110%); /* Start hidden below */
     width: 100%;
-    max-width: var(--phone-max-width);
-    height: var(--phone-max-height);
-    background-color: #1C1C1E; 
-    border-radius: var(--phone-border-radius); 
+    max-width: var(--phone-max-width); /* e.g. 320px */
+    height: var(--phone-max-height);   /* e.g. 70vh */
+    background-color: #1A1A1D; /* Darker phone casing */
+    border: 4px solid #0F0F10; /* Even darker border for depth */
+    border-radius: var(--phone-border-radius); /* e.g. 24px */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5), 0 0 0 2px #333; /* More pronounced shadow */
     display: flex;
     flex-direction: column;
-    overflow: hidden; 
-    transform: translateY(120%); 
-    opacity: 0;
-    transition: transform var(--transition-phone-slide),
-                opacity var(--transition-duration-medium) var(--transition-easing);
-    z-index: 20; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 4px rgba(50,50,50,0.8); 
-    border: 2px solid #000; 
-    &::before { /* Top speaker/camera notch */
-        content: '';
-        position: absolute;
-        top: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 6px;
-        background-color: #111;
-        border-radius: 3px;
-        z-index: 22; 
-    }
+    z-index: 100; /* Ensure it's above other game scene elements */
+    transition: transform var(--transition-phone-slide), opacity var(--transition-duration-medium);
+    opacity: 0; /* Start fully transparent */
 }
 
-#rikk-phone-display.active {
-    transform: translateY(0);
+.phone-frame.visible {
+    transform: translateX(-50%) translateY(0); /* Slide in */
     opacity: 1;
 }
 
-#phone-screen-header {
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: #2A2A2E; 
-    border-bottom: 1px solid #3A3A3C; 
-    font-weight: 700;
-    flex-shrink: 0;
-    text-align: center;
-    color: var(--color-on-surface); 
-    font-size: 0.95rem; 
-    font-family: var(--font-body); 
-    position: relative; 
-    margin: 2px; 
-    border-top-left-radius: var(--phone-screen-inset-radius); 
-    border-top-right-radius: var(--phone-screen-inset-radius);
-    &::before { /* Placeholder for a "back" arrow */
-        content: "<"; 
-        position: absolute;
-        left: var(--spacing-md);
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: var(--color-primary); 
-        opacity: 0.7;
-    }
+.phone-frame.docked {
+    transform: translateX(-50%) translateY(90%) scale(0.85); /* Partially hidden and scaled down */
+    opacity: 0.7; /* Dimmed when docked */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    /* User can click toggle button to make it .visible */
 }
 
 
-/* Chat Container - SMS message list styling */
-#chat-container {
+.phone-screen {
     flex-grow: 1;
-    padding: var(--spacing-md);
+    background-color: #080808; /* Very dark screen background */
+    border-radius: calc(var(--phone-border-radius) - 6px); /* Inner radius */
+    margin: 6px; /* Inset from the frame */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Important for child elements */
+    position: relative; /* For potential absolute positioned elements inside screen */
+}
+
+.phone-header { /* Re-styling existing .phone-header for new structure */
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: #202023;
+    border-bottom: 1px solid #2c2c2f;
+    color: var(--color-on-surface);
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    /* Simulating a notch or top bar */
+    position: relative;
+}
+.phone-header::before { /* Notch simulation */
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 5px;
+    background-color: #0F0F10; /* Frame color or slightly darker */
+    border-radius: 3px;
+}
+
+
+#chat-container { /* Now .phone-body */
+    flex-grow: 1;
+    padding: var(--spacing-sm); /* Reduced padding for smaller screen */
     overflow-y: auto;
     display: flex;
     flex-direction: column-reverse; 
-    background-color: #121212; 
+    background-color: transparent; /* Screen background will show */
     scrollbar-width: thin;
     scrollbar-color: var(--color-primary) var(--color-dark-bg);
-    margin-left: 2px; margin-right: 2px; 
 }
-#chat-container::-webkit-scrollbar { width: 6px; }
-#chat-container::-webkit-scrollbar-track { background: var(--color-dark-bg); }
+/* Webkit scrollbar for chat */
+#chat-container::-webkit-scrollbar { width: 5px; }
+#chat-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
 #chat-container::-webkit-scrollbar-thumb { background-color: var(--color-primary); border-radius: 3px; }
 
+/* Choices Area - Footer of the phone screen */
+#choices-area { /* Now .phone-footer */
+    padding: var(--spacing-sm);
+    background-color: #202023; /* Consistent with header */
+    border-top: 1px solid #2c2c2f;
+    display: flex;
+    flex-direction: column; /* Stack choices vertically on phone */
+    gap: var(--spacing-xs); /* Smaller gap for phone */
+    flex-shrink: 0;
+}
 
 /* Chat Bubbles - Refined for SMS Look */
 .chat-bubble {
-    max-width: 75%; 
-    padding: var(--spacing-sm) var(--spacing-md); 
+    max-width: 80%; /* Slightly more width for bubbles */
+    padding: var(--spacing-sm) var(--spacing-md); /* Increased padding: 8px 12px */
     margin-bottom: var(--spacing-xs); 
-    border-radius: var(--chat-bubble-border-radius); 
+    border-radius: 15px; /* Slightly less rounded for a modern feel */
     animation: popIn var(--animation-pop-in-duration) forwards;
-    line-height: 1.45;
+    line-height: 1.4;
     word-wrap: break-word;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     position: relative;
+    font-size: 0.8rem; /* Smaller font for phone */
 }
 .chat-bubble .speaker-name { 
     display: none; 
 }
 
 .chat-bubble.customer { 
-    background-color: var(--color-bubble-customer);
-    color: var(--color-bubble-customer-text);
+    background-color: #333338; /* Darker grey for received */
+    color: var(--color-on-surface);
     align-self: flex-start;
-    border-bottom-left-radius: 6px; 
+    border-bottom-left-radius: 5px;
 }
 
 .chat-bubble.rikk { 
-    background-color: var(--color-bubble-rikk-main);
-    color: var(--color-bubble-rikk-text);
+    background-color: var(--color-primary); /* Rikk's theme color */
+    color: var(--color-on-primary);
     align-self: flex-end;
-    border-bottom-right-radius: 6px; 
+    border-bottom-right-radius: 5px;
 }
 
 .chat-bubble.narration {
-    background-color: var(--color-bubble-narration); 
-    color: var(--color-bubble-narration-text);
+    background-color: transparent;
+    color: var(--color-grey-dim); /* Dimmer narration text */
     align-self: center; 
-    max-width: 90%;
+    max-width: 95%;
     text-align: center;
     font-style: italic;
     border-radius: 0; 
-    font-size: 0.8rem;
-    padding: var(--spacing-sm) 0; 
-    margin-top: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    font-size: 0.7rem; /* Even smaller for narration */
+    padding: var(--spacing-xs) 0;
+    margin-top: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
     box-shadow: none;
     border: none;
-    border-top: 1px dashed var(--color-grey-dark);
-    border-bottom: 1px dashed var(--color-grey-dark);
+    /* Optional: subtle separator for narration */
+    /* border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05); */
 }
 
-/* Choices Area - Styled like an input field + send buttons */
-#choices-area {
-    padding: var(--spacing-sm); 
-    display: flex; 
-    flex-direction: row; 
-    flex-wrap: wrap; 
-    gap: var(--spacing-sm); 
-    background-color: #2A2A2E; 
-    border-top: 1px solid #3A3A3C;
-    flex-shrink: 0;
-    align-items: center; 
-    padding-left: var(--spacing-md);
-    padding-right: var(--spacing-md);
-    min-height: 60px; 
-    margin: 2px; margin-bottom: 4px; 
-    border-bottom-left-radius: var(--phone-screen-inset-radius); 
-    border-bottom-right-radius: var(--phone-screen-inset-radius);
-}
 
+/* Phone Choice Buttons */
 .choice-button {
-    flex-grow: 1; 
-    padding: var(--spacing-sm) var(--spacing-md); 
-    border: none; 
-    border-radius: 20px; 
+    width: 100%; /* Full width for stacked buttons */
+    padding: var(--spacing-md); /* Increased padding: 12px */
+    border: 1px solid transparent; /* Base border for consistent height, can be colored on hover/active */
+    border-radius: 10px; /* Slightly more rounded */
     font-family: var(--font-body); 
-    font-weight: 700;
-    font-size: 0.85rem; 
+    font-weight: bold;
+    font-size: 0.85rem; /* Slightly larger font */
     cursor: pointer;
     transition: background-color var(--transition-duration-short) var(--transition-easing), 
                 transform var(--transition-duration-short) var(--transition-easing),
                 box-shadow var(--transition-duration-short) var(--transition-easing);
-    background-color: var(--color-primary); 
+    background-color: var(--color-secondary);
     color: var(--color-on-primary);
     text-align: center; 
-    min-width: 80px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow for depth */
 }
 .choice-button:hover {
-    background-color: var(--color-hub-inventory-hover); 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background-color: #03c4a1; /* Slightly lighter shade of secondary for hover */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
 }
 .choice-button:active {
-    transform: scale(0.97);
+    transform: scale(0.98); /* Slightly less aggressive pop */
+    background-color: #02a986; /* Darker shade for active/press */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 .choice-button:disabled,
 .choice-button:disabled:hover {
@@ -611,6 +611,152 @@ h2 { /* Modal titles, etc. */
 .hub-button:disabled .button-icon {
     /* fill: var(--color-disabled-text) !important; */ /* For SVG */
     opacity: 0.5;
+}
+
+/* Toggle Phone Button Specific Style (if needed, or use .hub-button) */
+#toggle-phone-btn {
+    /* Basic hub-button style is fine, can add specifics */
+}
+#toggle-phone-btn:hover {
+    background-color: var(--color-primary); /* Or another distinct color */
+    color: var(--color-on-primary);
+}
+
+/* Slots App Button Specific Style (if needed) */
+.slots-app-toggle:hover {
+    background-color: var(--color-accent-gold); /* Example color */
+    color: var(--color-on-primary);
+}
+
+/* Styles for Phone Apps Container (within .phone-screen) */
+/* #phone-chat-view and #slot-machine-app should be direct children of .phone-screen */
+/* By default, all apps are hidden, JS will show one at a time */
+#phone-chat-view,
+#slot-machine-app {
+    display: none; /* Hidden by default */
+    width: 100%;
+    height: 100%;
+    flex-direction: column; /* Most apps will be column based */
+}
+
+#phone-chat-view.active-app,
+#slot-machine-app.active-app {
+    display: flex; /* Show active app */
+}
+
+
+/* Slot Machine App Styles */
+#slot-machine-app .phone-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Distribute space for reels, controls, info */
+    align-items: center;
+    padding: var(--spacing-md);
+    flex-grow: 1;
+    background: linear-gradient(to bottom, #232323, #1a1a1a); /* Dark gradient for slots bg */
+}
+
+.slot-reels-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm);
+    background-color: rgba(0,0,0,0.2);
+    border-radius: var(--button-border-radius);
+}
+
+.reel {
+    width: 60px; /* Adjust as needed */
+    height: 80px; /* Adjust as needed */
+    background-color: var(--color-light-text);
+    border: 2px solid var(--color-grey-dark);
+    border-radius: var(--spacing-xs);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem; /* For placeholder symbols */
+    font-weight: bold;
+    color: var(--color-dark-bg);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+.slot-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    margin-bottom: var(--spacing-md);
+}
+
+.slot-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: var(--button-border-radius);
+    border: none;
+    cursor: pointer;
+    background-color: var(--color-accent-gold);
+    color: var(--color-on-primary);
+    transition: background-color var(--transition-duration-short);
+}
+.slot-button:hover {
+    background-color: #ffc107; /* Brighter gold */
+}
+.slot-button.spin {
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+    background-color: var(--color-success-green);
+}
+.slot-button.spin:hover {
+    background-color: #28a745; /* Darker green */
+}
+
+#slot-bet-amount-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--color-light-text);
+    padding: 0 var(--spacing-md);
+}
+
+.slot-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.9rem;
+    color: var(--color-grey-light);
+    width: 100%;
+    padding: var(--spacing-sm);
+    background-color: rgba(0,0,0,0.1);
+    border-radius: var(--button-border-radius);
+}
+#slot-winnings-display, #rikk-cash-display-slots {
+    font-weight: bold;
+    color: var(--color-accent-gold);
+}
+#rikk-cash-display-slots {
+    color: var(--color-success-green);
+}
+
+.phone-back-btn { /* Styling for the optional back button in apps */
+    position: absolute;
+    left: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 1.5rem; /* Make it larger */
+    font-weight: bold;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    opacity: 0.8;
+}
+.phone-back-btn:hover {
+    opacity: 1;
 }
 
 

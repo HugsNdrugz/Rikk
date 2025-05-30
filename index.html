@@ -58,18 +58,59 @@
             <div id="game-scene">
                 <div id="knock-effect" class="hidden" aria-live="assertive">KNOCK! KNOCK!</div>
 
-                <aside id="rikk-phone-display" class="phone-ui hidden" role="complementary" aria-label="Customer Interaction Terminal">
-                    <header class="phone-header">
-                        <h3 id="phone-title">Street Talk</h3>
-                    </header>
-                    <div id="chat-container" class="phone-body" role="log" aria-live="polite">
+                <!-- New Phone Structure -->
+                <div id="rikk-phone-display" class="phone-frame hidden" role="complementary" aria-label="Customer Interaction Terminal">
+                    <div class="phone-screen">
+                        <!-- Main Chat/Interaction View -->
+                        <div id="phone-chat-view">
+                            <header class="phone-header">
+                                <h3 id="phone-title">Street Talk</h3>
+                            </header>
+                            <div id="chat-container" class="phone-body" role="log" aria-live="polite">
+                            </div>
+                            <footer id="choices-area" class="phone-footer" role="toolbar" aria-label="Response Choices">
+                            </footer>
+                        </div>
+
+                        <!-- Slot Machine App View -->
+                        <div id="slot-machine-app" class="hidden">
+                            <header class="phone-header">
+                                <h3>Slots! Slots! Slots!</h3>
+                                <!-- Optional: Back button to phone-chat-view -->
+                                <button id="slot-back-btn" class="phone-back-btn" aria-label="Back to main phone view">‹</button>
+                            </header>
+                            <div class="phone-body">
+                                <div class="slot-reels-container">
+                                    <div class="reel" id="reel1">?</div>
+                                    <div class="reel" id="reel2">?</div>
+                                    <div class="reel" id="reel3">?</div>
+                                </div>
+                                <div class="slot-controls">
+                                    <button id="slot-bet-decrease-btn" class="slot-button">-</button>
+                                    <span id="slot-bet-amount-display">$10</span>
+                                    <button id="slot-bet-increase-btn" class="slot-button">+</button>
+                                    <button id="slot-spin-btn" class="slot-button spin">SPIN</button>
+                                </div>
+                                <div class="slot-info">
+                                    <span>Winnings: <span id="slot-winnings-display">$0</span></span>
+                                    <span>Cash: <span id="rikk-cash-display-slots">$0</span></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <footer id="choices-area" class="phone-footer" role="toolbar" aria-label="Response Choices">
-                    </footer>
-                </aside>
+                </div>
+                <!-- End New Phone Structure -->
             </div>
 
             <nav id="player-hub" class="player-controls" role="navigation" aria-label="Player Actions">
+                <button id="toggle-phone-btn" class="hub-button phone-toggle">
+                    <img src="assets/icons/phone-icon.svg" alt="Toggle Phone" class="button-icon" aria-hidden="true"/>
+                    <span>Phone</span>
+                </button>
+                <button id="open-slots-app-btn" class="hub-button slots-app-toggle">
+                    <img src="assets/icons/slots-icon.svg" alt="Open Slots App" class="button-icon" aria-hidden="true"/>
+                    <span>Slots</span>
+                </button>
                 <button id="open-inventory-btn" class="hub-button inventory-toggle">
                     <img src="assets/icons/backpack-icon.svg" alt="" class="button-icon" aria-hidden="true"/>
                     <span>Stash (<span id="inventory-count-display">0</span>)</span>
