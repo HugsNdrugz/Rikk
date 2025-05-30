@@ -3,86 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Rikk's Doorstep Hustle</title>
+    <title>My Nigga Rikk - Street Hustle</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="game-viewport">
-        <!-- Start Screen -->
-        <div id="start-screen" class="screen active overlay-screen">
-            <div class="screen-content">
-                <h1>Rikk's Hustle</h1>
-                <p>Yo! The city's wild, but Rikk's got the smarts. Answer the door, make the deals, don't get played.</p>
-                <button id="start-game-btn" class="game-button">Start Hustlin'</button>
+    <div id="game-viewport" class="app-root">
+        <!-- Splash Screen -->
+        <section id="splash-screen" class="screen active" aria-label="Loading Game">
+            <div class="content-wrapper">
+                <h1 class="splash-title">My Nigga Rikk</h1>
+                <p class="splash-tagline">Loading the Hustle...</p>
+                <div class="loader"></div>
             </div>
-        </div>
+        </section>
+
+        <!-- Start Screen (Main Menu) -->
+        <section id="start-screen" class="screen overlay-screen" aria-labelledby="start-screen-title">
+            <div class="screen-content">
+                <h1 id="start-screen-title">My Nigga Rikk</h1>
+                <p class="screen-description">What Up doh!. Tonight, you're the connect. Buy low, sell high, and don't get burned. Can you make a killing before the night's over? You fuck around you gonna find out, you're in the game now.</p>
+                <div class="button-group">
+                    <button id="new-game-btn" class="game-button primary-action">Hit the Streets!</button>
+                    <button id="continue-game-btn" class="game-button secondary-action hidden">Continue Hustle</button>
+                </div>
+            </div>
+        </section>
 
         <!-- Game Screen -->
-        <div id="game-screen" class="screen">
-            <div id="top-hud">
-                <span>💰 $<span id="cash-display">0</span></span>
-                <span>🗓️ Day <span id="day-display">1</span></span>
-                <span>🔥 Heat <span id="heat-display">0</span></span>
+        <main id="game-screen" class="screen" role="main" aria-label="Main Game Area">
+            <header id="top-hud" class="hud">
+                <div class="hud-item stat-cash">
+                    <span class="hud-icon" aria-hidden="true">💰</span>
+                    <span class="hud-label">Stash:</span> $<span id="cash-display" class="hud-value">0</span>
+                </div>
+                <div class="hud-item stat-fiends">
+                    <span class="hud-icon" aria-hidden="true">🗓️</span>
+                    <span class="hud-label">Fiends Left:</span> <span id="day-display" class="hud-value">10</span>
+                </div>
+                <div class="hud-item stat-heat">
+                    <span class="hud-icon" aria-hidden="true">🔥</span>
+                    <span class="hud-label">Heat:</span> <span id="heat-display" class="hud-value">0</span>
+                </div>
+                <div class="hud-item stat-cred"> <!-- NEW Street Cred -->
+                    <span class="hud-icon" aria-hidden="true">🏆</span>
+                    <span class="hud-label">Cred:</span> <span id="cred-display" class="hud-value">0</span>
+                </div>
+            </header>
+
+            <div id="event-ticker-container"> <!-- NEW Event Ticker -->
+                <p id="event-ticker">Word on the street: All quiet... for now.</p>
             </div>
 
             <div id="game-scene">
-                <!-- The background image will now be on the <body>, and game-scene is transparent -->
-                <div id="knock-effect" class="hidden">KNOCK!</div>
-                <!-- You could add an invisible div here to represent the door area for knock-effect positioning if needed -->
-                <!-- e.g., <div id="photo-door-interactive-area"></div> -->
+                <div id="knock-effect" class="hidden" aria-live="assertive">KNOCK! KNOCK!</div>
 
-                <!-- NEW: The Phone Display Rikk pulls out -->
-                <div id="rikk-phone-display" class="hidden">
-                    <div id="phone-screen-header">Customer Chat</div>
-                    <div id="chat-container">
-                        <!-- Chat bubbles will be dynamically added here -->
+                <aside id="rikk-phone-display" class="phone-ui hidden" role="complementary" aria-label="Customer Interaction Terminal">
+                    <header class="phone-header">
+                        <h3 id="phone-title">Street Talk</h3>
+                    </header>
+                    <div id="chat-container" class="phone-body" role="log" aria-live="polite">
                     </div>
-                    <div idq="choices-area">
-                        <!-- Action buttons dynamically added here -->
-                    </div>
-                </div>
+                    <footer id="choices-area" class="phone-footer" role="toolbar" aria-label="Response Choices">
+                    </footer>
+                </aside>
             </div>
 
-            <div id="player-hub">
-                <button id="open-inventory-btn" class="hub-button">
-                    <img src="backpack-icon.png" alt="🎒" class="button-icon"/>
+            <nav id="player-hub" class="player-controls" role="navigation" aria-label="Player Actions">
+                <button id="open-inventory-btn" class="hub-button inventory-toggle">
+                    <img src="assets/icons/backpack-icon.svg" alt="" class="button-icon" aria-hidden="true"/>
                     <span>Stash (<span id="inventory-count-display">0</span>)</span>
                 </button>
-                <button id="next-customer-btn" class="hub-button main-action" disabled>
-                    <img src="next-icon.png" alt="➡️" class="button-icon"/>
-                    <span>Next</span>
+                <button id="next-customer-btn" class="hub-button main-action next-turn" disabled>
+                    <img src="assets/icons/next-icon.svg" alt="" class="button-icon" aria-hidden="true"/>
+                    <span>Next Fiend</span>
                 </button>
-            </div>
-        </div>
+            </nav>
+        </main>
 
         <!-- End Screen -->
-        <div id="end-screen" class="screen overlay-screen">
+        <section id="end-screen" class="screen overlay-screen" aria-labelledby="end-screen-title">
              <div class="screen-content">
-                <h2>Hustle Complete!</h2>
-                <p>Rikk's run ended after <span id="final-days-display"></span> days.</p>
-                <p>Final Cash: $<span id="final-cash-display"></span></p>
-                <p id="final-verdict-text"></p>
-                <button id="restart-game-btn" class="game-button">Go Again</button>
+                <h2 id="end-screen-title">The Night's Over!</h2>
+                <div class="final-stats">
+                    <p>You hustled for <span id="final-days-display" class="stat-value"></span> fiends.</p>
+                    <p>Final Stash: $<span id="final-cash-display" class="stat-value"></span></p>
+                    <p>Final Street Cred: <span id="final-cred-display" class="stat-value"></span></p> <!-- NEW -->
+                </div>
+                <p id="final-verdict-text" class="final-verdict"></p>
+                <button id="restart-game-btn" class="game-button primary-action">Run it Back</button>
             </div>
-        </div>
+        </section>
 
-        <!-- Inventory Modal (remains the same) -->
-        <div id="inventory-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal-btn">×</span>
-                <h2>Rikk's Stash</h2>
-                <div id="inventory-list"></div>
-                <p>Capacity: <span id="modal-inventory-slots-display">0/0</span></p>
+        <!-- Inventory Modal -->
+        <div id="inventory-modal" class="modal-overlay hidden" aria-hidden="true">
+            <div id="inventory-dialog" class="modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title" aria-describedby="inventory-modal-description">
+                <header class="modal-header">
+                    <h2 id="inventory-modal-title">Your Stash</h2>
+                    <button class="close-modal-btn" aria-label="Close Stash">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </header>
+                <div id="inventory-modal-description" class="modal-body">
+                    <div id="inventory-list" class="inventory-grid">
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <p class="inventory-capacity">Capacity: <span id="modal-inventory-slots-display">0/0</span></p>
+                </footer>
             </div>
         </div>
     </div>
 
-    <audio id="door-knock-sound" src="door-knock.mp3" preload="auto"></audio>
-    <audio id="cash-sound" src="cash-register.mp3" preload="auto"></audio>
-    <audio id="denied-sound" src="denied.mp3" preload="auto"></audio>
-    <audio id="chat-bubble-sound" src="chat-pop.mp3" preload="auto"></audio>
+    <!-- Audio Elements -->
+    <audio id="door-knock-sound" src="assets/audio/door-knock.mp3" preload="auto"></audio>
+    <audio id="cash-sound" src="assets/audio/cash-register.mp3" preload="auto"></audio>
+    <audio id="denied-sound" src="assets/audio/denied.mp3" preload="auto"></audio>
+    <audio id="chat-bubble-sound" src="assets/audio/chat-pop.mp3" preload="auto"></audio>
 
+    <!-- DATA FILES FIRST -->
+    <script src="data/data_items.js"></script>
+    <script src="data/data_customers.js"></script>
+    <script src="data/data_events.js"></script>
+    <!-- MAIN SCRIPT LAST -->
     <script src="script.js"></script>
 </body>
 </html>

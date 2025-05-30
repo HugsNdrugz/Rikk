@@ -1,102 +1,96 @@
 /* === style.css === */
 
-/*
-|--------------------------------------------------------------------------
-| CSS Custom Properties (Global Variables)
-|--------------------------------------------------------------------------
-*/
 :root {
     /* Colors */
-    --color-dark-bg: #1a1a1a;
-    --color-light-text: #f0f0f0;
-    --color-mid-dark: #333;
-    --color-grey-dark: #555;
-    --color-grey-mid: #ccc;
-    --color-grey-light: #aaa;
-    --color-grey-dim: #bdc3c7;
+    --color-dark-bg: #121212; 
+    --color-surface: #1e1e1e; 
+    --color-primary: #bb86fc; 
+    --color-secondary: #03dac6; 
+    --color-error: #cf6679; 
+    --color-on-surface: #e0e0e0; 
+    --color-on-primary: #000000; 
     
-    /* Accent Colors */
-    --color-accent-gold: #ffc107;
-    --color-accent-orange: #ff9800;
-    --color-link-blue: #007bff;
-    --color-success-green: #28a745;
-    --color-danger-red: #dc3545;
+    --color-light-text: #f0f0f1; 
+    --color-mid-dark: #2c3e50; 
+    --color-grey-dark: #333333; 
+    --color-grey-mid: #757575; 
+    --color-grey-light: #bdbdbd; 
+    --color-grey-dim: #9e9e9e;
+    
+    /* Accent Colors from theme */
+    --color-accent-gold: #f39c12; 
+    --color-accent-orange: #e67e22; 
+    --color-link-blue: #3498db; 
+    --color-success-green: #2ecc71; 
+    --color-danger-red: var(--color-error); 
 
     /* Semi-Transparent Overlays */
-    --color-overlay-dark-strong: rgba(0, 0, 0, 0.85);
-    --color-overlay-dark-medium: rgba(0, 0, 0, 0.5);
-    --color-overlay-dark-subtle: rgba(0, 0, 0, 0.3);
-    --color-overlay-dark-light: rgba(0, 0, 0, 0.15);
-    --color-overlay-dark-faint: rgba(0, 0, 0, 0.1);
-    --color-overlay-dark-player-hub: rgba(0, 0, 0, 0.35);
+    --color-overlay-dark-strong: rgba(0, 0, 0, 0.9); 
+    --color-overlay-dark-medium: rgba(0, 0, 0, 0.65);
+    --color-overlay-dark-subtle: rgba(0, 0, 0, 0.4);
 
-    /* Button Colors */
-    --color-button-yellow-start: #fbc531;
-    --color-button-yellow-end: #e1a200;
-    --color-button-yellow-hover-start: #fdd835;
-    --color-button-yellow-hover-end: #f5b000;
-    --color-button-yellow-border: #c78d00;
-    --color-button-red-start: #e74c3c;
-    --color-button-red-end: #c0392b;
-    --color-button-red-hover-start: #ff6b5b;
-    --color-button-red-hover-end: #d35400;
-    --color-button-red-border: #a5281b;
-    --color-button-green-start: #2ecc71;
-    --color-button-green-end: #27ae60;
+    /* Button Colors using theme */
+    --color-button-primary-bg: var(--color-primary);
+    --color-button-primary-text: var(--color-on-primary);
+    --color-button-primary-border: var(--color-primary);
+
+    --color-button-secondary-bg: transparent;
+    --color-button-secondary-text: var(--color-secondary);
+    --color-button-secondary-border: var(--color-secondary);
     
     /* Disabled States */
-    --color-disabled-bg: #bdc3c7;
-    --color-disabled-border: #95a5a6;
-    --color-disabled-text: #7f8c8d;
+    --color-disabled-bg: rgba(224, 224, 224, 0.12); 
+    --color-disabled-border: rgba(224, 224, 224, 0.12); 
+    --color-disabled-text: rgba(224, 224, 224, 0.38); 
 
     /* Chat Bubbles */
-    --color-bubble-customer: #e9ecef;
-    --color-bubble-customer-text: #212529;
-    --color-bubble-rikk-main: #007bff;
-    --color-bubble-narration: #495057;
-    --color-bubble-narration-text: #e0e0e0;
+    --color-bubble-customer: #3E3E42; /* Grey for received messages */
+    --color-bubble-customer-text: var(--color-on-surface); 
+    --color-bubble-rikk-main: var(--color-primary); 
+    --color-bubble-rikk-text: var(--color-on-primary);
+    --color-bubble-narration: transparent; 
+    --color-bubble-narration-text: var(--color-grey-mid);
 
     /* Hub Buttons */
-    --color-hub-green-main: #5cb85c;
-    --color-hub-green-shadow: #449d44;
-    --color-hub-green-hover: #4cae4c;
-    --color-hub-green-active: #398439;
-    --color-hub-orange-main: #f0ad4e;
-    --color-hub-orange-shadow: #eea236;
-    --color-hub-orange-hover: #d58512;
+    --color-hub-action-main: var(--color-secondary);
+    --color-hub-action-hover: #018786; 
+    --color-hub-inventory-main: var(--color-primary);
+    --color-hub-inventory-hover: #7f39fb; 
+
 
     /* Fonts */
-    --font-body: 'Open Sans', sans-serif;
-    --font-game-title: 'Comic Neue', cursive;
+    --font-body: 'Roboto', 'Open Sans', sans-serif; 
+    --font-display: 'Press Start 2P', 'Comic Neue', cursive; 
 
     /* Sizes & Dimensions */
-    --viewport-max-width: 420px;
-    --viewport-border-radius: 15px;
-    --phone-max-width: 280px;
-    --phone-max-height: 400px;
-    --phone-border-radius: 25px;
-    --modal-max-width: 380px;
+    --viewport-max-width: 480px; 
+    --viewport-border-radius: 12px;
+    --phone-max-width: 320px; 
+    --phone-max-height: 70vh; 
+    --phone-border-radius: 24px; /* Outer phone body radius */
+    --phone-screen-inset-radius: calc(var(--phone-border-radius) - 6px); /* Inner screen elements */
+    --modal-max-width: 420px;
     --modal-border-radius: 10px;
-    --button-border-radius: 25px;
+    --button-border-radius: 8px; 
     --chat-bubble-border-radius: 18px;
-    --chat-bubble-tail-radius: 5px;
-    --narration-bubble-border-radius: 8px;
-    --icon-size: 20px;
+    --icon-size: 22px;
 
     /* Spacing */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 16px;
-    --spacing-xl: 20px;
-    --spacing-xxl: 24px;
+    --spacing-unit: 8px; 
+    --spacing-xs: calc(var(--spacing-unit) * 0.5);  
+    --spacing-sm: var(--spacing-unit);             
+    --spacing-md: calc(var(--spacing-unit) * 1.5); 
+    --spacing-lg: calc(var(--spacing-unit) * 2);   
+    --spacing-xl: calc(var(--spacing-unit) * 3);   
+    --spacing-xxl: calc(var(--spacing-unit) * 4);  
 
     /* Transitions & Animations */
-    --transition-fade-quick: 0.3s ease;
-    --transition-screen-fade: 0.5s ease-in-out;
-    --transition-phone-slide: 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    --transition-button-quick: 0.15s ease;
-    --animation-knock-duration: 0.5s;
+    --transition-duration-short: 0.2s;
+    --transition-duration-medium: 0.4s;
+    --transition-easing: ease-in-out;
+    --transition-screen-fade: var(--transition-duration-medium) var(--transition-easing);
+    --transition-phone-slide: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+    --animation-knock-duration: 0.4s;
     --animation-pop-in-duration: 0.3s;
 }
 
@@ -105,17 +99,24 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    font-size: 16px; 
 }
 
 body {
     font-family: var(--font-body);
-    background-color: var(--color-dark-bg);
-    color: var(--color-light-text);
+    background-color: #000000; 
+    color: var(--color-on-surface);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    padding: var(--spacing-sm);
 }
 
 /* Game Viewport */
@@ -123,13 +124,15 @@ body {
     width: 100%;
     max-width: var(--viewport-max-width);
     height: 100vh;
-    background-color: var(--color-overlay-dark-subtle);
+    max-height: 900px; 
+    background-color: var(--color-dark-bg); 
     border-radius: var(--viewport-border-radius);
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8); 
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    border: 1px solid var(--color-grey-dark);
 }
 
 /* Screen Styles */
@@ -139,223 +142,679 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    display: none;
+    display: none; 
     flex-direction: column;
-    align-items: center;
     text-align: center;
-    transition: opacity var(--transition-screen-fade);
+    transition: opacity var(--transition-screen-fade), visibility 0s var(--transition-screen-fade);
+    visibility: hidden;
+    opacity: 0;
+    background-color: var(--color-dark-bg); 
 }
 
 .screen.active {
     display: flex;
+    visibility: visible;
+    opacity: 1; 
 }
 
+/* Splash Screen Styles */
+#splash-screen {
+    background-image: url('assets/images/splash-screen-bg.jpg'); 
+    background-size: cover;
+    background-position: center;
+    justify-content: center; 
+    align-items: center;
+    z-index: 2000; 
+}
+.splash-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    text-shadow: 2px 2px 0px #000, 4px 4px 0px var(--color-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+.splash-tagline {
+    font-size: 1.1rem;
+    color: var(--color-on-surface);
+    text-shadow: 1px 1px 2px #000;
+}
+.loader { 
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-left-color: var(--color-secondary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-top: var(--spacing-xl);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* Start Screen & End Screen (Overlay Screens) */
 .overlay-screen {
-    background-color: var(--color-overlay-dark-strong);
-    justify-content: center;
+    justify-content: center; 
+    align-items: center; 
     padding: var(--spacing-xl);
+}
+#start-screen.overlay-screen {
+    background-image: url('assets/images/main-menu-bg.jpg'); 
+    background-size: cover;
+    background-position: center;
+}
+#end-screen.overlay-screen {
+    background-color: var(--color-overlay-dark-strong); 
+}
+
+.overlay-screen .screen-content {
+    background-color: rgba(30, 30, 30, 0.9); 
+    padding: var(--spacing-xl) var(--spacing-xxl);
+    border-radius: var(--modal-border-radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    max-width: 90%;
+    border: 1px solid var(--color-grey-dark);
+}
+
+
+/* Game Screen Background */
+#game-screen { 
+    background-image: url('assets/images/game-screen-bg.jpg'); 
+    background-size: cover;
+    background-position: center;
 }
 
 /* Typography */
-h1 {
-    font-family: var(--font-game-title);
-    font-size: 2.8em;
-    color: var(--color-accent-gold);
-    margin-bottom: var(--spacing-xl);
-    text-shadow: 2px 2px #000;
+h1, #start-screen-title { /* Combined for start screen title */
+    font-family: var(--font-display);
+    font-size: 2.2rem; 
+    color: var(--color-primary); 
+    margin-bottom: var(--spacing-lg);
+    text-shadow: 2px 2px 0 var(--color-dark-bg), 3px 3px 0 var(--color-secondary);
 }
-
-h2 {
-    font-family: var(--font-game-title);
-    font-size: 2em;
+#end-screen-title { /* Specific styling for end screen title */
+    font-family: var(--font-display);
+    font-size: 2rem;
     color: var(--color-accent-orange);
     margin-bottom: var(--spacing-lg);
+    text-shadow: 2px 2px 0 var(--color-dark-bg);
 }
+
+
+h2 { /* Modal titles, etc. */
+    font-family: var(--font-display);
+    font-size: 1.6rem; 
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-md);
+}
+.overlay-screen p.screen-description,
+#end-screen p:not(#final-verdict-text) { /* Paragraphs in overlays, excluding final verdict */
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-grey-light);
+}
+#final-verdict-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: var(--spacing-lg) 0;
+    line-height: 1.6;
+}
+
 
 /* HUD */
 #top-hud {
     width: 100%;
-    background-color: var(--color-overlay-dark-medium);
+    background-color: rgba(18, 18, 18, 0.8); 
     padding: var(--spacing-sm) var(--spacing-lg);
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; 
     align-items: center;
-    font-weight: bold;
+    font-weight: 700; 
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--color-grey-dark);
+    font-size: 0.85rem; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
-
 .hud-item {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
 }
+.hud-icon {
+    font-size: 1.1rem;
+    margin-right: var(--spacing-xs);
+    opacity: 0.8;
+}
+.hud-label { 
+    color: var(--color-grey-light);
+    margin-right: var(--spacing-xs);
+}
+.hud-value { 
+    color: var(--color-accent-gold); 
+}
+.stat-cred .hud-value { color: var(--color-primary); } 
+
+/* Event Ticker */
+#event-ticker-container {
+    background-color: rgba(18, 18, 18, 0.9);
+    color: var(--color-secondary);
+    padding: var(--spacing-xs) var(--spacing-lg);
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 1px solid var(--color-grey-dark);
+    text-shadow: 1px 1px 1px #000;
+    flex-shrink: 0; 
+    position: relative; 
+    overflow: hidden; 
+    white-space: nowrap; 
+}
+
+
+/* Game Scene Area */
+#game-scene {
+    flex-grow: 1; 
+    width: 100%;  
+    position: relative; 
+    overflow: hidden; 
+    display: flex; 
+    justify-content: center;
+    align-items: flex-end; 
+    padding: var(--spacing-md); 
+    background-color: transparent; 
+}
+
 
 /* Knock Effect */
 #knock-effect {
-    position: absolute;
+    font-family: var(--font-display);
+    font-size: 2rem; 
+    color: var(--color-on-primary);
+    background-color: var(--color-error);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--button-border-radius);
+    animation: knockAnim var(--animation-knock-duration) ease-out;
+    z-index: 10; 
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    position: absolute; 
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: var(--font-game-title);
-    font-size: 2.2em;
-    color: var(--color-light-text);
-    background-color: var(--color-danger-red);
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-radius: var(--button-border-radius);
-    animation: knockAnim var(--animation-knock-duration) ease-out;
 }
 
-@keyframes knockAnim {
-    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+@keyframes knockAnim { 
+    0% { transform: translate(-50%, -50%) scale(0.5) rotate(-5deg); opacity: 0; }
+    60% { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* Phone Display */
+/* Phone Display - Overall Phone Look */
 #rikk-phone-display {
-    position: absolute;
-    bottom: var(--spacing-xl);
-    right: var(--spacing-xl);
-    width: 85%;
+    position: relative; 
+    width: 100%;
     max-width: var(--phone-max-width);
-    height: 70%;
-    max-height: var(--phone-max-height);
-    background-color: var(--color-mid-dark);
-    border-radius: var(--phone-border-radius);
+    height: var(--phone-max-height);
+    background-color: #1C1C1E; 
+    border-radius: var(--phone-border-radius); 
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transform: translateX(120%);
+    overflow: hidden; 
+    transform: translateY(120%); 
     opacity: 0;
     transition: transform var(--transition-phone-slide),
-                opacity var(--transition-phone-slide);
+                opacity var(--transition-duration-medium) var(--transition-easing);
+    z-index: 20; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 4px rgba(50,50,50,0.8); 
+    border: 2px solid #000; 
+    &::before { /* Top speaker/camera notch */
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 6px;
+        background-color: #111;
+        border-radius: 3px;
+        z-index: 22; 
+    }
 }
 
 #rikk-phone-display.active {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
 }
 
 #phone-screen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--color-dark-bg);
-    border-bottom: 1px solid var(--color-grey-dark);
+    background-color: #2A2A2E; 
+    border-bottom: 1px solid #3A3A3C; 
+    font-weight: 700;
+    flex-shrink: 0;
+    text-align: center;
+    color: var(--color-on-surface); 
+    font-size: 0.95rem; 
+    font-family: var(--font-body); 
+    position: relative; 
+    margin: 2px; 
+    border-top-left-radius: var(--phone-screen-inset-radius); 
+    border-top-right-radius: var(--phone-screen-inset-radius);
+    &::before { /* Placeholder for a "back" arrow */
+        content: "<"; 
+        position: absolute;
+        left: var(--spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: var(--color-primary); 
+        opacity: 0.7;
+    }
 }
 
-/* Chat Container */
+
+/* Chat Container - SMS message list styling */
 #chat-container {
     flex-grow: 1;
     padding: var(--spacing-md);
     overflow-y: auto;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column-reverse; 
+    background-color: #121212; 
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-dark-bg);
+    margin-left: 2px; margin-right: 2px; 
 }
+#chat-container::-webkit-scrollbar { width: 6px; }
+#chat-container::-webkit-scrollbar-track { background: var(--color-dark-bg); }
+#chat-container::-webkit-scrollbar-thumb { background-color: var(--color-primary); border-radius: 3px; }
 
-/* Chat Bubbles */
+
+/* Chat Bubbles - Refined for SMS Look */
 .chat-bubble {
-    max-width: 85%;
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-    border-radius: var(--chat-bubble-border-radius);
+    max-width: 75%; 
+    padding: var(--spacing-sm) var(--spacing-md); 
+    margin-bottom: var(--spacing-xs); 
+    border-radius: var(--chat-bubble-border-radius); 
     animation: popIn var(--animation-pop-in-duration) forwards;
+    line-height: 1.45;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    position: relative;
+}
+.chat-bubble .speaker-name { 
+    display: none; 
 }
 
-.chat-bubble.customer {
+.chat-bubble.customer { 
     background-color: var(--color-bubble-customer);
     color: var(--color-bubble-customer-text);
     align-self: flex-start;
+    border-bottom-left-radius: 6px; 
 }
 
-.chat-bubble.rikk {
+.chat-bubble.rikk { 
     background-color: var(--color-bubble-rikk-main);
-    color: var(--color-light-text);
+    color: var(--color-bubble-rikk-text);
     align-self: flex-end;
+    border-bottom-right-radius: 6px; 
 }
 
-/* Choice Buttons */
+.chat-bubble.narration {
+    background-color: var(--color-bubble-narration); 
+    color: var(--color-bubble-narration-text);
+    align-self: center; 
+    max-width: 90%;
+    text-align: center;
+    font-style: italic;
+    border-radius: 0; 
+    font-size: 0.8rem;
+    padding: var(--spacing-sm) 0; 
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    box-shadow: none;
+    border: none;
+    border-top: 1px dashed var(--color-grey-dark);
+    border-bottom: 1px dashed var(--color-grey-dark);
+}
+
+/* Choices Area - Styled like an input field + send buttons */
 #choices-area {
-    padding: var(--spacing-md);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
+    padding: var(--spacing-sm); 
+    display: flex; 
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    gap: var(--spacing-sm); 
+    background-color: #2A2A2E; 
+    border-top: 1px solid #3A3A3C;
+    flex-shrink: 0;
+    align-items: center; 
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+    min-height: 60px; 
+    margin: 2px; margin-bottom: 4px; 
+    border-bottom-left-radius: var(--phone-screen-inset-radius); 
+    border-bottom-right-radius: var(--phone-screen-inset-radius);
 }
 
 .choice-button {
-    width: 100%;
-    padding: var(--spacing-md);
-    border: none;
-    border-radius: var(--button-border-radius);
-    font-family: var(--font-game-title);
-    font-weight: bold;
+    flex-grow: 1; 
+    padding: var(--spacing-sm) var(--spacing-md); 
+    border: none; 
+    border-radius: 20px; 
+    font-family: var(--font-body); 
+    font-weight: 700;
+    font-size: 0.85rem; 
     cursor: pointer;
-    transition: transform var(--transition-button-quick);
+    transition: background-color var(--transition-duration-short) var(--transition-easing), 
+                transform var(--transition-duration-short) var(--transition-easing),
+                box-shadow var(--transition-duration-short) var(--transition-easing);
+    background-color: var(--color-primary); 
+    color: var(--color-on-primary);
+    text-align: center; 
+    min-width: 80px; 
+}
+.choice-button:hover {
+    background-color: var(--color-hub-inventory-hover); 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.choice-button:active {
+    transform: scale(0.97);
+}
+.choice-button:disabled,
+.choice-button:disabled:hover {
+    background-color: var(--color-disabled-bg) !important; 
+    color: var(--color-disabled-text) !important;
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
 }
 
+.choice-button.decline {
+    background-color: #555; 
+    color: var(--color-on-surface);
+}
+.choice-button.decline:hover {
+    background-color: var(--color-error); 
+    color: var(--color-on-primary);
+}
+
+
+/* Player Hub Styles */
+#player-hub {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: rgba(18,18,18,0.9); 
+    width: 100%;
+    flex-shrink: 0; 
+    border-top: 1px solid var(--color-grey-dark);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+}
+
+.hub-button {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm); 
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.75rem; 
+    color: var(--color-on-surface);
+    border: none;
+    border-radius: var(--button-border-radius);
+    cursor: pointer;
+    transition: background-color var(--transition-duration-short) var(--transition-easing), transform var(--transition-duration-short) var(--transition-easing);
+    background-color: transparent; 
+    flex-grow: 1; 
+    max-width: 120px; 
+}
+.hub-button .button-icon {
+    width: calc(var(--icon-size) * 1.2); 
+    height: calc(var(--icon-size) * 1.2);
+    margin-bottom: var(--spacing-xs);
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.5)); 
+    /* For SVGs, set fill/stroke with CSS if they are inline or use currentcolor */
+}
+
+#open-inventory-btn:hover {
+    background-color: var(--color-hub-inventory-main);
+    color: var(--color-on-primary);
+}
+/* Example for SVG icon coloring - if using SVGs that inherit color */
+/* #open-inventory-btn .button-icon { fill: var(--color-hub-inventory-main); }
+#open-inventory-btn:hover .button-icon { fill: var(--color-on-primary); } */
+
+
+.hub-button.main-action:hover {
+    background-color: var(--color-hub-action-main);
+    color: var(--color-on-primary);
+}
+/* .hub-button.main-action .button-icon { fill: var(--color-hub-action-main); }
+.hub-button.main-action:hover .button-icon { fill: var(--color-on-primary); } */
+
+
+.hub-button:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.hub-button:disabled,
+.hub-button.main-action:disabled {
+    background-color: transparent !important;
+    color: var(--color-disabled-text) !important;
+    cursor: not-allowed;
+    transform: none;
+}
+.hub-button:disabled .button-icon {
+    /* fill: var(--color-disabled-text) !important; */ /* For SVG */
+    opacity: 0.5;
+}
+
+
 /* Inventory Modal */
-.modal {
-    display: none;
-    position: fixed;
+.modal-overlay { 
+    display: none; 
+    position: absolute; 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: var(--color-overlay-dark-strong);
-    z-index: 1000;
+    z-index: 1000; 
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    transition: opacity var(--transition-duration-short) var(--transition-easing);
+}
+.modal-overlay.active {
+    display: flex; 
+    opacity: 1;
 }
 
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background-color: var(--color-mid-dark);
-    padding: var(--spacing-xl);
+.modal-content { 
+    background-color: var(--color-surface);
+    padding: 0; 
     border-radius: var(--modal-border-radius);
     width: 90%;
     max-width: var(--modal-max-width);
-    max-height: 80vh;
-    overflow-y: auto;
+    max-height: 85vh; 
+    display: flex; 
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    border: 1px solid var(--color-grey-dark);
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform var(--transition-duration-short) var(--transition-easing), 
+                opacity var(--transition-duration-short) var(--transition-easing);
 }
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-grey-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header h2 { 
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+}
+.close-modal-btn {
+    font-size: 1.8rem; 
+    font-weight: 700;
+    color: var(--color-on-surface);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    line-height: 1;
+    background: none;
+    border: none;
+    opacity: 0.7;
+    transition: opacity var(--transition-duration-short) var(--transition-easing);
+}
+.close-modal-btn:hover {
+    opacity: 1;
+    color: var(--color-error);
+}
+
+.modal-body { 
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    flex-grow: 1; 
+}
+
+#inventory-list.inventory-grid { 
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Wider cards */
+    gap: var(--spacing-md);
+}
+.inventory-item-card { /* Styles for the new div wrapper for items */
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-grey-dark);
+    border-radius: var(--spacing-xs);
+    background-color: var(--color-dark-bg);
+    color: var(--color-on-surface);
+    font-size: 0.9rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+.inventory-item-card h4 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+.item-detail {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-grey-light);
+    line-height: 1.4; /* Increased line height for details */
+    margin: 0;
+}
+
+.modal-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-grey-dark);
+    text-align: center;
+}
+.inventory-capacity { 
+    margin: 0;
+    font-weight: 700;
+    color: var(--color-secondary);
+    font-size: 0.9rem;
+}
+
 
 /* Utility Classes */
 .hidden {
-    display: none !important;
+    display: none !important; 
 }
 
-/* Stats Display */
-.stats-container {
-    background-color: var(--color-overlay-dark-subtle);
-    padding: var(--spacing-lg);
-    border-radius: var(--modal-border-radius);
-    margin: var(--spacing-lg) 0;
+/* General Game Button Styles (Start/Restart on overlay screens) */
+.game-button {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-family: var(--font-display);
+    font-size: 1rem; 
+    border: 2px solid; 
+    border-radius: var(--button-border-radius); 
+    cursor: pointer;
+    transition: background-color var(--transition-duration-short) var(--transition-easing), 
+                color var(--transition-duration-short) var(--transition-easing),
+                transform var(--transition-duration-short) var(--transition-easing),
+                box-shadow var(--transition-duration-short) var(--transition-easing);
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+    margin-top: var(--spacing-lg); 
+    min-width: 200px; 
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
-/* Tutorial Elements */
-.tutorial-content {
-    padding: var(--spacing-md);
+.game-button.primary-action {
+    background-color: var(--color-button-primary-bg);
+    color: var(--color-button-primary-text);
+    border-color: var(--color-button-primary-border);
+}
+.game-button.primary-action:hover {
+    background-color: var(--color-on-primary); 
+    color: var(--color-button-primary-bg);
+    box-shadow: 0 0 15px var(--color-button-primary-bg);
 }
 
-.tutorial-step {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-md);
-    background-color: var(--color-overlay-dark-light);
-    border-radius: var(--modal-border-radius);
+.game-button.secondary-action {
+    background-color: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+    border-color: var(--color-button-secondary-border);
 }
+.game-button.secondary-action:hover {
+    background-color: var(--color-button-secondary-text);
+    color: var(--color-surface); 
+    box-shadow: 0 0 15px var(--color-button-secondary-text);
+}
+
+
+.game-button:active {
+    transform: translateY(1px) scale(0.98);
+}
+
 
 /* Responsive Design */
-@media (max-height: 600px) {
-    :root {
-        --phone-max-height: 300px;
-    }
+@media (max-height: 750px) { 
+    :root { --phone-max-height: 65vh; }
+    .overlay-screen .screen-content { padding: var(--spacing-lg); }
+    h1, #start-screen-title { font-size: 2rem; }
+    #end-screen-title { font-size: 1.8rem; }
+    .overlay-screen p.screen-description, #end-screen p:not(#final-verdict-text) { font-size: 0.95rem; margin-bottom: var(--spacing-lg); }
+    .game-button { font-size: 0.9rem; padding: var(--spacing-md) var(--spacing-lg); }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 420px) { 
     :root {
         --viewport-max-width: 100%;
         --viewport-border-radius: 0;
     }
+    body { padding: 0; }
+    #game-viewport { max-height: 100vh; border: none; }
+
+    h1, #start-screen-title { font-size: 1.8rem; }
+    #end-screen-title { font-size: 1.6rem; }
+    .hub-button {
+        padding: var(--spacing-sm);
+        font-size: 0.7rem;
+        max-width: 100px;
+    }
+    :root { --icon-size: 20px; } 
+    #top-hud { font-size: 0.75rem; padding: var(--spacing-xs) var(--spacing-sm); }
+    .choice-button { font-size: 0.8rem; padding: var(--spacing-sm) var(--spacing-md); }
+    #phone-screen-header { font-size: 0.95rem; }
+    #event-ticker-container { font-size: 0.7rem; }
 }
