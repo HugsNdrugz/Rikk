@@ -348,25 +348,39 @@ h2 { /* Modal titles, etc. */
     100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* Phone Display - Overall Phone Look */
+/* Phone Display - Base Styles */
 #rikk-phone-display {
-    position: relative; 
-    width: 100%;
-    max-width: var(--phone-max-width);
-    height: var(--phone-max-height);
-    background-color: #1C1C1E; 
-    border-radius: var(--phone-border-radius); 
-    display: flex;
+    position: absolute; /* Changed from relative for bottom/right positioning */
+    bottom: 20px; /* Default position for active chat view */
+    right: 20px; /* Default position for active chat view */
+    z-index: 20;
+    display: flex; /* Base display type */
     flex-direction: column;
     overflow: hidden; 
-    transform: translateY(120%); 
-    opacity: 0;
-    transition: transform var(--transition-phone-slide),
-                opacity var(--transition-duration-medium) var(--transition-easing);
-    z-index: 20; 
+    opacity: 0; /* Start hidden, JS controls visibility via 'active', 'phone-docked', etc. */
+    transform: translateY(100vh); /* Start off-screen */
+
+    /* Base transitions for properties that change across states */
+    transition: width var(--transition-duration-medium) var(--transition-easing),
+                height var(--transition-duration-medium) var(--transition-easing),
+                opacity var(--transition-duration-medium) var(--transition-easing),
+                bottom var(--transition-duration-medium) var(--transition-easing),
+                right var(--transition-duration-medium) var(--transition-easing),
+                transform var(--transition-duration-medium) var(--transition-easing),
+                background-color var(--transition-duration-medium) var(--transition-easing),
+                border-radius var(--transition-duration-medium) var(--transition-easing),
+                border-color var(--transition-duration-medium) var(--transition-easing);
+
+    /* Default appearance (will be overridden by .active, .phone-docked, .app-menu-active) */
+    width: var(--phone-active-width); /* Default to active size but hidden */
+    height: var(--phone-active-height);
+    background-color: #1C1C1E;
+    border-radius: var(--phone-border-radius);
     box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 4px rgba(50,50,50,0.8); 
     border: 2px solid #000; 
-    &::before { /* Top speaker/camera notch */
+}
+
+#rikk-phone-display::before { /* Top speaker/camera notch */
         content: '';
         position: absolute;
         top: 8px;
@@ -377,15 +391,40 @@ h2 { /* Modal titles, etc. */
         background-color: #111;
         border-radius: 3px;
         z-index: 22; 
+        display: none; /* Hidden by default, shown by specific states like .active and .app-menu-active */
     }
 }
 
+/* Chat View (.active) */
 #rikk-phone-display.active {
-    transform: translateY(0);
+    width: var(--phone-active-width);
+    height: var(--phone-active-height);
+    bottom: var(--phone-active-bottom);
+    right: var(--phone-active-right);
+    background-color: #1C1C1E;
+    border-radius: var(--phone-border-radius);
+    border: 2px solid #000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 4px rgba(50,50,50,0.8);
+    cursor: default;
     opacity: 1;
+    transform: translateY(0);
+}
+#rikk-phone-display.active::before { display: block; } /* Show notch */
+
+#rikk-phone-display.active .phone-header,
+#rikk-phone-display.active #chat-container, /* Replaces .phone-body */
+#rikk-phone-display.active #choices-area {   /* Replaces .phone-footer */
+    display: flex; /* Assuming header, chat, choices use flex */
 }
 
-#phone-screen-header {
+#rikk-phone-display.active #phone-app-menu,
+#rikk-phone-display.active #phone-dock-icon {
+    display: none !important;
+}
+
+/* General Phone Structure Elements */
+/* Ensure .phone-header is styled correctly as it's a direct child now used by multiple states */
+.phone-header {
     padding: var(--spacing-sm) var(--spacing-md);
     background-color: #2A2A2E; 
     border-bottom: 1px solid #3A3A3C; 
@@ -396,24 +435,38 @@ h2 { /* Modal titles, etc. */
     font-size: 0.95rem; 
     font-family: var(--font-body); 
     position: relative; 
-    margin: 2px; 
+    margin: 2px; /* Inset from phone edge */
     border-top-left-radius: var(--phone-screen-inset-radius); 
     border-top-right-radius: var(--phone-screen-inset-radius);
-    &::before { /* Placeholder for a "back" arrow */
-        content: "<"; 
-        position: absolute;
-        left: var(--spacing-md);
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: var(--color-primary); 
-        opacity: 0.7;
-    }
+    display: flex; /* Ensure it's flex for alignment */
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-header::before { /* "Back" arrow - general styling */
+    content: "<";
+    position: absolute;
+    left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    opacity: 0.7;
+    cursor: pointer; /* Indicates it's clickable */
+    display: none; /* Hidden by default, JS will show for app menu state */
 }
 
 
-/* Chat Container - SMS message list styling */
+#phone-title { /* Already globally defined, just ensure it works within .phone-header */
+    color: var(--color-on-surface);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Chat Container */
 #chat-container {
     flex-grow: 1;
     padding: var(--spacing-md);
@@ -429,8 +482,26 @@ h2 { /* Modal titles, etc. */
 #chat-container::-webkit-scrollbar-track { background: var(--color-dark-bg); }
 #chat-container::-webkit-scrollbar-thumb { background-color: var(--color-primary); border-radius: 3px; }
 
+/* Choices Area */
+#choices-area {
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    background-color: #2A2A2E;
+    border-top: 1px solid #3A3A3C;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 50px;
+    margin: 2px;
+    margin-bottom: 4px; /* Space for bottom phone edge */
+    border-bottom-left-radius: var(--phone-screen-inset-radius);
+    border-bottom-right-radius: var(--phone-screen-inset-radius);
+}
 
-/* Chat Bubbles - Refined for SMS Look */
+/* Chat Bubbles */
 .chat-bubble {
     max-width: 75%; 
     padding: var(--spacing-sm) var(--spacing-md); 
@@ -848,4 +919,127 @@ h2 { /* Modal titles, etc. */
     font-weight: 700; /* Make it bold */
     font-size: 0.95rem; /* Good readable size */
     margin: 0; /* Remove default h3 margin */
+}
+
+/* Phone Docked State */
+#rikk-phone-display.phone-docked {
+    width: var(--phone-docked-width);
+    height: var(--phone-docked-height);
+    bottom: var(--phone-docked-bottom);
+    right: var(--phone-docked-right);
+    border: none;
+    border-radius: var(--phone-docked-border-radius);
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    cursor: pointer;
+    overflow: hidden; /* Should already be there */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transform: translateY(0);
+    /* Transitions are on the base #rikk-phone-display now */
+}
+#rikk-phone-display.phone-docked::before { display: none; } /* Hide notch */
+
+#rikk-phone-display.phone-docked:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+
+#rikk-phone-display.phone-docked #phone-dock-icon {
+    display: block;
+}
+#rikk-phone-display.phone-docked #phone-dock-icon::before {
+    content: '📱';
+    font-size: 30px; /* Adjust as needed */
+    line-height: var(--phone-docked-height);
+    color: white;
+}
+
+/* Ensure chat elements are definitely hidden when docked */
+#rikk-phone-display.phone-docked .phone-header,
+#rikk-phone-display.phone-docked #chat-container, /* Targets body */
+#rikk-phone-display.phone-docked #choices-area,   /* Targets footer */
+#rikk-phone-display.phone-docked #phone-app-menu { /* Also hide app menu if it was open */
+    display: none !important;
+}
+
+/* Phone App Menu */
+#phone-app-menu {
+    display: flex; /* Or grid, for app icons */
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+    height: 100%; /* Take full height of the phone body */
+    background-color: #222; /* Slightly different background for app menu */
+}
+
+#phone-app-menu.hidden {
+    display: none;
+}
+
+/* App Icon Styles (Refined for list view) */
+.app-icon {
+    width: 100%; /* Full width in column layout */
+    padding: 15px;
+    margin: 5px 0; /* Vertical margin for list items */
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #eee;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.app-icon:hover {
+    background-color: #383838;
+    border-color: #555;
+}
+
+/* App Menu State */
+#rikk-phone-display.app-menu-active {
+    width: var(--phone-app-menu-width);
+    height: var(--phone-app-menu-height);
+    bottom: var(--phone-app-menu-bottom);
+    right: var(--phone-app-menu-right);
+    background-color: #181818;
+    border: 1px solid #333;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border-radius: var(--phone-app-menu-border-radius);
+    cursor: default;
+    opacity: 1;
+    transform: translateY(0);
+    /* Transitions are on the base #rikk-phone-display */
+}
+#rikk-phone-display.app-menu-active::before { display: block; } /* Show notch */
+
+#rikk-phone-display.app-menu-active .phone-header {
+    display: flex;
+    background-color: #222;
+    border-bottom: 1px solid #333;
+}
+#rikk-phone-display.app-menu-active .phone-header::before { /* Back arrow for app menu */
+    display: block;
+}
+
+#rikk-phone-display.app-menu-active #phone-app-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: calc(100% - 40px); /* Adjust if header height changes */
+    overflow-y: auto;
+    background-color: #181818; /* Ensure app menu bg matches parent */
+}
+
+/* Ensure chat body, footer, and dock icon are hidden when app menu is active */
+#rikk-phone-display.app-menu-active #chat-container,
+#rikk-phone-display.app-menu-active #choices-area,
+#rikk-phone-display.app-menu-active #phone-dock-icon {
+    display: none !important;
 }

@@ -20,6 +20,12 @@ const eventTicker = document.getElementById('event-ticker');
 const gameScene = document.getElementById('game-scene');
 const knockEffect = document.getElementById('knock-effect');
 
+// --- Phone State Management ---
+const PHONE_STATE_CHATTING = 'CHATTING';
+const PHONE_STATE_DOCKED = 'DOCKED';
+const PHONE_STATE_APP_MENU = 'APP_MENU';
+let currentPhoneState = PHONE_STATE_CHATTING; // Default state
+
 const rikkPhoneDisplay = document.getElementById('rikk-phone-display');
 const chatContainer = document.getElementById('chat-container');
 const choicesArea = document.getElementById('choices-area');
@@ -53,6 +59,7 @@ let streetCred = 0;
 let inventory = [];
 const MAX_INVENTORY_SLOTS = 10;
 let currentCustomer = null; // Will hold the active customer's data for the interaction
+let phoneStateBeforeInventory = null;
 let gameActive = false;
 let playerSkills = { negotiator: 0, appraiser: 0, lowProfile: 0 };
 let activeWorldEvents = [];
@@ -95,6 +102,44 @@ function initGame() {
     nextCustomerBtn.addEventListener('click', nextFiend); openInventoryBtn.addEventListener('click', openInventoryModal); closeModalBtn.addEventListener('click', closeInventoryModal);
     inventoryModal.addEventListener('click', (e) => { if (e.target === inventoryModal) closeInventoryModal(); });
     rikkPhoneDisplay.classList.add('hidden'); rikkPhoneDisplay.classList.remove('active');
+
+    // Event listener for clicking on the phone
+    const phoneAppMenu = document.getElementById('phone-app-menu');
+    const phoneHeader = document.querySelector('#rikk-phone-display .phone-header');
+    // chatContainer and choicesArea are already globally defined
+
+    rikkPhoneDisplay.addEventListener('click', () => {
+        if (currentPhoneState === PHONE_STATE_DOCKED) {
+            currentPhoneState = PHONE_STATE_APP_MENU;
+
+            rikkPhoneDisplay.classList.remove('phone-docked');
+            rikkPhoneDisplay.classList.remove('hidden'); // Ensure it's not hidden
+            rikkPhoneDisplay.classList.add('app-menu-active'); // New class to signify app menu is open
+
+            if (phoneAppMenu) phoneAppMenu.classList.remove('hidden');
+            if (phoneTitleElement) phoneTitleElement.textContent = 'Apps'; // Update title
+
+            // Ensure chat elements are hidden (choicesArea is a footer, chatContainer is body)
+            if (chatContainer) chatContainer.classList.add('hidden');
+            if (choicesArea) choicesArea.classList.add('hidden'); // Hide footer / choices
+
+            // Ensure the main phone header is visible for the "Apps" title
+            if (phoneHeader) phoneHeader.classList.remove('hidden');
+
+            // Add placeholder app icons if the menu is empty
+            if (phoneAppMenu && phoneAppMenu.innerHTML.trim() === '') {
+                const placeholderApp = document.createElement('div');
+                placeholderApp.classList.add('app-icon');
+                placeholderApp.textContent = 'Stats'; // Example App
+                phoneAppMenu.appendChild(placeholderApp);
+
+                const placeholderApp2 = document.createElement('div');
+                placeholderApp2.classList.add('app-icon');
+                placeholderApp2.textContent = 'Map'; // Example App
+                phoneAppMenu.appendChild(placeholderApp2);
+            }
+        }
+    });
 }
 
 function initializeNewGameState() {
@@ -106,7 +151,11 @@ function initializeNewGameState() {
 
 function startGameFlow() {
     gameActive = true; splashScreen.classList.remove('active'); splashScreen.style.display = 'none'; startScreen.classList.remove('active'); endScreen.classList.remove('active'); gameScreen.classList.add('active');
-    rikkPhoneDisplay.classList.add('hidden'); rikkPhoneDisplay.classList.remove('active');
+    rikkPhoneDisplay.classList.add('hidden'); // Keep it initially off-screen
+    rikkPhoneDisplay.classList.remove('active');
+    rikkPhoneDisplay.classList.remove('phone-docked'); // Not docked visible yet
+    rikkPhoneDisplay.classList.remove('app-menu-active'); // Ensure app menu isn't active
+    currentPhoneState = PHONE_STATE_DOCKED; // Conceptually, it's not chatting
     updateHUD(); updateInventoryDisplay(); clearChat(); clearChoices(); nextFiend();
 }
 
@@ -138,7 +187,8 @@ function nextFiend() {
     let heatReduction = 1 + playerSkills.lowProfile; activeWorldEvents.forEach(eventState => { if (eventState.event.effects && eventState.event.effects.heatReductionModifier) { heatReduction *= eventState.event.effects.heatReductionModifier; } });
     heat = Math.max(0, heat - Math.round(heatReduction));
     updateHUD(); clearChat(); clearChoices(); nextCustomerBtn.disabled = true;
-    rikkPhoneDisplay.classList.remove('active'); setTimeout(() => rikkPhoneDisplay.classList.add('hidden'), PHONE_ANIMATION_DURATION);
+    // rikkPhoneDisplay.classList.remove('active'); // Removed
+    // setTimeout(() => rikkPhoneDisplay.classList.add('hidden'), PHONE_ANIMATION_DURATION); // Removed
     playSound(doorKnockSound); knockEffect.textContent = `*${dayOfWeek} hustle... someone's knockin'.*`; knockEffect.classList.remove('hidden'); knockEffect.style.animation = 'none'; void knockEffect.offsetWidth; knockEffect.style.animation = 'knockAnim 0.5s ease-out forwards';
     setTimeout(() => { knockEffect.classList.add('hidden'); startCustomerInteraction(); }, KNOCK_ANIMATION_DURATION);
     saveGameState();
@@ -474,18 +524,46 @@ function generateCustomerInteractionData() {
 }
 
 function startCustomerInteraction() {
-    generateCustomerInteractionData();
+    generateCustomerInteractionData(); // Call this first as it sets up currentCustomer
+
+    currentPhoneState = PHONE_STATE_CHATTING;
+
+    // Update phone title (needs currentCustomer)
     if (phoneTitleElement && currentCustomer && currentCustomer.name) {
         phoneTitleElement.textContent = currentCustomer.name;
     } else if (phoneTitleElement) {
         phoneTitleElement.textContent = 'Street Talk';
     }
-    let dialogueIndex = 0;
 
+    // Configure phone display classes
     rikkPhoneDisplay.classList.remove('hidden');
-    setTimeout(() => rikkPhoneDisplay.classList.add('active'), 50);
-    clearChat();
+    rikkPhoneDisplay.classList.remove('phone-docked');
+    rikkPhoneDisplay.classList.remove('app-menu-active');
 
+    // Apply 'active' class for chat mode, possibly with a slight delay for transitions
+    if (!rikkPhoneDisplay.classList.contains('active')) {
+        setTimeout(() => {
+             rikkPhoneDisplay.classList.add('active');
+        }, 10); // A small delay, adjust if needed
+    }
+
+    // Ensure correct internal components are shown/hidden
+    const phoneAppMenu = document.getElementById('phone-app-menu');
+    const phoneDockIcon = document.getElementById('phone-dock-icon'); // Assuming you might have this ID
+    const phoneHeader = document.querySelector('#rikk-phone-display .phone-header');
+    // chatContainer and choicesArea are already globally defined constants
+
+    if (phoneAppMenu) phoneAppMenu.classList.add('hidden');
+    if (phoneDockIcon) phoneDockIcon.classList.add('hidden');
+
+    if (phoneHeader) phoneHeader.classList.remove('hidden');
+    if (chatContainer) chatContainer.classList.remove('hidden');
+    if (choicesArea) choicesArea.classList.remove('hidden');
+
+    clearChat(); // Clears previous messages
+
+    // Dialogue display logic
+    let dialogueIndex = 0;
     const displayNext = () => {
         if (currentCustomer && dialogueIndex < currentCustomer.dialogue.length) {
             const msg = currentCustomer.dialogue[dialogueIndex];
@@ -496,7 +574,7 @@ function startCustomerInteraction() {
             displayChoices(currentCustomer.choices);
         } else {
             console.error("startCustomerInteraction: currentCustomer became null during dialogue display.");
-            endCustomerInteraction();
+            endCustomerInteraction(); // Ensure this handles UI state correctly if error occurs
         }
     };
     displayNext();
@@ -723,23 +801,36 @@ function handleChoice(outcome) {
 }
 
 function endCustomerInteraction() {
-    clearChoices();
-    if (phoneTitleElement) {
-        phoneTitleElement.textContent = 'Street Talk';
-    }
-    currentCustomer = null;
-    if (fiendsLeft > 0 && gameActive && heat < MAX_HEAT && (cash > 0 || inventory.length > 0) ) { // Can continue if not bankrupt
+    // Clear phone title or set to a generic "Docked"
+    if (phoneTitleElement) phoneTitleElement.textContent = 'Phone Docked'; // Or simply hide it via CSS
+
+    currentCustomer = null; // Existing line
+    currentPhoneState = PHONE_STATE_DOCKED;
+
+    rikkPhoneDisplay.classList.remove('active'); // 'active' likely means full chat view
+    rikkPhoneDisplay.classList.remove('app-menu-active'); // Ensure app menu is closed
+    rikkPhoneDisplay.classList.add('phone-docked');
+    rikkPhoneDisplay.classList.remove('hidden'); // Ensure the phone element itself is visible
+
+    // The CSS for .phone-docked should hide .phone-header, .phone-body, .phone-footer.
+    // We need to make sure the app menu is also hidden.
+    const phoneAppMenu = document.getElementById('phone-app-menu');
+    if (phoneAppMenu) phoneAppMenu.classList.add('hidden');
+
+    // Clear any previous choices
+    clearChoices(); // This function already exists and clears choicesArea.innerHTML
+
+    // Existing logic for nextCustomerBtn and game state:
+    if (fiendsLeft > 0 && gameActive && heat < MAX_HEAT && (cash > 0 || inventory.length > 0) ) {
         nextCustomerBtn.disabled = false;
-    }
-    else if (gameActive) { // Game is active but conditions to continue not met (e.g. bankrupt, max heat)
+    } else if (gameActive) {
         nextCustomerBtn.disabled = true;
         // Check if an end game condition was met but not yet triggered
         if (heat >= MAX_HEAT && gameActive) endGame("heat");
         else if (cash <= 0 && inventory.length === 0 && fiendsLeft > 0 && gameActive) endGame("bankrupt");
         else if (fiendsLeft <=0 && gameActive) endGame("completed");
     }
-    saveGameState();
-    // Moved end game check from here to be more immediate within handleChoice or after nextCustomerBtn logic
+    saveGameState(); // Existing line
 }
 
 function updateHUD() {
@@ -779,18 +870,69 @@ function updateInventoryDisplay() {
 }
 
 function openInventoryModal() {
-    updateInventoryDisplay(); // Ensure it's up-to-date when opened
+    updateInventoryDisplay(); // Existing line
+
+    // Store current phone state before hiding it
+    phoneStateBeforeInventory = currentPhoneState;
+
+    // Hide phone
+    rikkPhoneDisplay.classList.remove('active', 'phone-docked', 'app-menu-active'); // Remove all state classes
+    rikkPhoneDisplay.classList.add('hidden'); // Hide it completely
+
     inventoryModal.classList.add('active');
-    rikkPhoneDisplay.classList.remove('active');
-    rikkPhoneDisplay.classList.add('hidden');
 }
+
 function closeInventoryModal() {
     inventoryModal.classList.remove('active');
-    if (currentCustomer) { // Only show phone if an interaction is active
-        rikkPhoneDisplay.classList.remove('hidden');
+    rikkPhoneDisplay.classList.remove('hidden'); // Make phone element visible first
+
+    // Restore phone to its state before inventory was opened
+    // Ensure elements are available before trying to manipulate classes
+    const phoneAppMenu = document.getElementById('phone-app-menu');
+    const header = document.querySelector('#rikk-phone-display .phone-header'); // Renamed to avoid conflict
+    const chat = document.getElementById('chat-container'); // Renamed to avoid conflict
+    const choices = document.getElementById('choices-area'); // Renamed to avoid conflict
+    const titleElement = document.getElementById('phone-title'); // Renamed to avoid conflict
+
+    if (currentCustomer && phoneStateBeforeInventory === PHONE_STATE_CHATTING) {
+        currentPhoneState = PHONE_STATE_CHATTING;
         rikkPhoneDisplay.classList.add('active');
+        rikkPhoneDisplay.classList.remove('phone-docked', 'app-menu-active');
+
+        if (phoneAppMenu) phoneAppMenu.classList.add('hidden');
+        if (header) header.classList.remove('hidden');
+        if (chat) chat.classList.remove('hidden');
+        if (choices) choices.classList.remove('hidden');
+        // Title will be set by startCustomerInteraction if a new interaction starts,
+        // or should reflect current customer if interaction is ongoing.
+        // For now, if currentCustomer exists, title should reflect their name.
+        if (titleElement && currentCustomer && currentCustomer.name) titleElement.textContent = currentCustomer.name;
+        else if (titleElement) titleElement.textContent = "Street Talk";
+
+
+    } else if (phoneStateBeforeInventory === PHONE_STATE_APP_MENU) {
+        currentPhoneState = PHONE_STATE_APP_MENU;
+        rikkPhoneDisplay.classList.add('app-menu-active');
+        rikkPhoneDisplay.classList.remove('phone-docked', 'active');
+
+        if (phoneAppMenu) phoneAppMenu.classList.remove('hidden');
+        if (header) header.classList.remove('hidden');
+        if (chat) chat.classList.add('hidden');
+        if (choices) choices.classList.add('hidden');
+        if (titleElement) titleElement.textContent = 'Apps';
+
+    } else { // Default to DOCKED state
+        currentPhoneState = PHONE_STATE_DOCKED;
+        rikkPhoneDisplay.classList.add('phone-docked');
+        rikkPhoneDisplay.classList.remove('app-menu-active', 'active');
+
+        if (phoneAppMenu) phoneAppMenu.classList.add('hidden');
+        // For docked, header, chat, choices are hidden by .phone-docked CSS
+        if (titleElement) titleElement.textContent = 'Phone Docked'; // Or rely on CSS to hide title
     }
+    phoneStateBeforeInventory = null; // Reset for next time
 }
+
 function clearChat() { chatContainer.innerHTML = ''; }
 function clearChoices() { choicesArea.innerHTML = ''; }
 function playSound(audioElement) {
