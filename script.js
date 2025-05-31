@@ -541,11 +541,12 @@ function startCustomerInteraction() {
     rikkPhoneDisplay.classList.remove('app-menu-active');
 
     // Apply 'active' class for chat mode, possibly with a slight delay for transitions
-    if (!rikkPhoneDisplay.classList.contains('active')) {
-        setTimeout(() => {
-             rikkPhoneDisplay.classList.add('active');
-        }, 10); // A small delay, adjust if needed
-    }
+    // if (!rikkPhoneDisplay.classList.contains('active')) { // Removed conditional
+    //     setTimeout(() => { // Removed setTimeout
+    //          rikkPhoneDisplay.classList.add('active');
+    //     }, 10);
+    // }
+    rikkPhoneDisplay.classList.add('active'); // Apply class directly
 
     // Ensure correct internal components are shown/hidden
     const phoneAppMenu = document.getElementById('phone-app-menu');
