@@ -151,11 +151,13 @@ function initializeNewGameState() {
 
 function startGameFlow() {
     gameActive = true; splashScreen.classList.remove('active'); splashScreen.style.display = 'none'; startScreen.classList.remove('active'); endScreen.classList.remove('active'); gameScreen.classList.add('active');
-    rikkPhoneDisplay.classList.add('hidden'); // Keep it initially off-screen
+    // rikkPhoneDisplay.classList.add('hidden'); // REMOVE THIS LINE
     rikkPhoneDisplay.classList.remove('active');
-    rikkPhoneDisplay.classList.remove('phone-docked'); // Not docked visible yet
-    rikkPhoneDisplay.classList.remove('app-menu-active'); // Ensure app menu isn't active
-    currentPhoneState = PHONE_STATE_DOCKED; // Conceptually, it's not chatting
+    rikkPhoneDisplay.classList.remove('phone-docked');
+    rikkPhoneDisplay.classList.remove('app-menu-active');
+    // The base style for #rikk-phone-display includes transform: translateY(100vh)
+    // which should keep it off-screen without needing an explicit 'hidden' class.
+    currentPhoneState = PHONE_STATE_DOCKED; // Or an appropriate initial conceptual state like PHONE_STATE_OFFSCREEN
     updateHUD(); updateInventoryDisplay(); clearChat(); clearChoices(); nextFiend();
 }
 
